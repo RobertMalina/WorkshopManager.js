@@ -1,12 +1,9 @@
 const AppServer = function() {
   const express = require('express');
-  const dotEnv = require('dotenv');
   const path = require('path');
   const routeTable = {};
   const server = express();
   this.port = null;
-
-  dotEnv.config();
 
   const onInit = function() {
     server.use(express.static(path.join(__dirname, 'public')));

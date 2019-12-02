@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const AppServer = require('./server');
 const OrderController = require('./controllers/orders-controller');
 const OrderService = require('./services/order-service');

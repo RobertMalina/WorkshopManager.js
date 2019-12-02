@@ -1,11 +1,14 @@
 const OrderService = function() {
   const sqlServerAccess = require('mssql');
 
-  const fs = require('fs');
+  const dbConnectionConfig = {
+    user: process.env.DEV_SQLSERVER_USERNAME,
+    password: process.env.DEV_SQLSERVER_USERPSWD,
+    server: process.env.DEV_SQLSERVER_IP_ADDR,
+    database: process.env.DEV_DB_NAME
+  }
 
-  const rawSettings = fs.readFileSync('./server-settings/db-connection-configs.json');
-  const settings = JSON.parse(rawSettings);
-  const dbConnectionConfig = settings["MaqunistaDbConfig"];
+  console.log(dbConnectionConfig)
 
   this.fetchOrders = function() {
     return new Promise(function(resolve, reject) {
