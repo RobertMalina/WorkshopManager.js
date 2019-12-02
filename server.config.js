@@ -16,7 +16,7 @@ assert( DEV_DB_NAME, "You must set DEV_DB_NAME in your local .env file." );
 
 module.exports = {
   db:{
-    username: DEV_SQLSERVER_USERNAME,
+    user: DEV_SQLSERVER_USERNAME,
     password: DEV_SQLSERVER_USERPSWD,
     server: DEV_SQLSERVER_IP_ADDR,
     database: DEV_DB_NAME
