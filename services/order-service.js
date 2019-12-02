@@ -1,58 +1,15 @@
+const DbAccess = require('../DAL/db-access');
+
 const OrderService = function() {
-  const sqlServerAccess = require('mssql');
-
-  const configuration = require('../server.config');
-  const dbConnectionConfig = configuration.db;
-  // const dbConnectionConfig = {
-  //   user: process.env.DEV_SQLSERVER_USERNAME,
-  //   password: process.env.DEV_SQLSERVER_USERPSWD,
-  //   server: process.env.DEV_SQLSERVER_IP_ADDR,
-  //   database: process.env.DEV_DB_NAME
-  // }
-
-  console.log(dbConnectionConfig)
+  
+  const db = new DbAccess();
 
   this.fetchOrders = function() {
-    return new Promise(function(resolve, reject) {
-      sqlServerAccess.connect(dbConnectionConfig, function(err) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        const request = new sqlServerAccess.Request();
-
-        request.query('select * from [Order]', function(err, recordset) {
-          if (err) {
-            console.log(err);
-            reject(err);
-          }
-          resolve(recordset);
-        });
-      });
-    });
+    return db.run('select * from [Order]');
   };
 
   this.fetchOrder = function(id) {
-    return new Promise(function(resolve, reject) {
-      sqlServerAccess.connect(dbConnectionConfig, function(err) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        const request = new sqlServerAccess.Request();
-
-        request.query(`select * from [Order] where [Id] = ${id}`, function(
-          err,
-          record,
-        ) {
-          if (err) {
-            console.log(err);
-            reject(err);
-          }
-          resolve(record);
-        });
-      });
-    });
+    return db.run(`select * from [Order] where [Id] = ${id}`);
   };
 };
 
