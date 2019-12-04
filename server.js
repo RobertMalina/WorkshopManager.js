@@ -21,6 +21,14 @@ const AppServer = function() {
     server.listen(this.port);
   };
 
+  this.enableJSONBodyParsing = function(){
+    var bodyParser = require('body-parser');
+    server.use( bodyParser.json() );
+    server.use(bodyParser.urlencoded({
+      extended: true
+    })); 
+  };
+
   const isActionValid = function(action) {
     if (!action.httpVerb) {
       console.error('Brak typu akcji...');
