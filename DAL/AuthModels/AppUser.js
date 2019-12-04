@@ -46,7 +46,7 @@ const AppUser = function(){
       console.error(`Invalid property name ${propName}`);
       return false;
     }
-    return properties[propName];
+    return properties[propName].value;
   }
 }
 

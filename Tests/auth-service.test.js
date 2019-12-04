@@ -18,8 +18,7 @@ test('Should return instance of AppUser', (done)=>{
   }).catch((error) => {
      console.log(error);
       done(); 
-  });
-  
+  }); 
 });
 
 test('Should have PasswordHash property initialized', (done)=>{
@@ -28,7 +27,7 @@ test('Should have PasswordHash property initialized', (done)=>{
     Username: 'New User'
   };
   service.createVirtualUser(postData).then((user)=>{
-    const hashedPswd = user.get('PasswordHash').value;
+    const hashedPswd = user.get('PasswordHash');
     expect(hashedPswd.length).toBeGreaterThanOrEqual(0);
     done();
   }).catch((error) => { 

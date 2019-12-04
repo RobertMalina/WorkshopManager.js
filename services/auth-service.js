@@ -40,6 +40,34 @@ const AuthService = function() {
     }).catch((err) => { console.error(err); });
   };
 
+  this.getAppUser = function(username){
+    return new Promise((resolve, reject) => {
+      db.run(`select top 1 * from [AppUser] where Username = '${username}'`)
+      .then((read) => {
+        if(read.recordset.length < 1){
+          return null;
+        }
+        else{
+          const user = new AppUser();
+          user.set('Id', read.recordset[0].Id);
+          user.set('Username', read.recordset[0].Username);
+          user.set('PasswordHash',read.recordset[0].PasswordHash);
+          resolve(user);
+        }
+      });    
+    });
+  };
+
+  this.isLoginDataValid = function(username, password){
+    return this.getAppUser(username).then((user)=>{
+      if(!user){
+        console.warn(`user with username: ${user} not found`)
+        return false;
+      }
+      return BCrypt.compare(password, user.get('PasswordHash'));
+    })
+  };
+
 };
 
 module.exports = AuthService;

@@ -67,7 +67,7 @@ const AppServer = function() {
       for (const key in actions) {
         let action = actions[key];
         if (isActionValid(action)) {
-          if (action.authRequired || action.roles) {
+          if (action.authRequired) {
             server.use(action.route, authenticate);
           }
           switch (action.httpVerb) {
