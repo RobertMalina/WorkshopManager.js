@@ -14,8 +14,7 @@ const AuthService = function() {
     server.use(Passport.session());
   };
 
-
-  this.createVirtualUser = function(userData){    
+  this.createVirtualUser = function(userData){   
     const user = new AppUser();
     if(!user.isValid(userData))
     {
@@ -25,11 +24,8 @@ const AuthService = function() {
 
     return new Promise((resolve, reject) => {
       BCrypt.genSalt(saltingRounds).then((salt) => {
-        console.log(`salt: ${salt}`);
-        console.log(`userData.Password: ${userData.Password}`);
         BCrypt.hash(userData.Password, salt).then((passwordHash)=>{
-          console.log(`passwordHash: ${passwordHash}`);
-          user.set('Username', userData.username);
+          user.set('Username', userData.Username);
           user.set('PasswordHash', passwordHash);
           resolve(user);
         }).catch((err) => reject(err));
@@ -38,13 +34,10 @@ const AuthService = function() {
     });  
   };
 
-  this.registerAppUser = function(appUser) {
-    this.createVirtualUser().then((user)=>{
-      return db.insert(appUser)
-      .catch((error)=> {
-        console.error(error);
-      });
-    })  
+  this.registerAppUser = function(userData) {
+    return this.createVirtualUser(userData).then((appUser)=>{
+      return db.insert(appUser);
+    }).catch((err) => { console.error(err); });
   };
 
 };

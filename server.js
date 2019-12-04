@@ -5,6 +5,10 @@ const AppServer = function() {
   const server = express();
   this.port = null;
 
+  this.getInstance = function(){
+    return server;
+  }
+
   const onInit = function() {
     server.use(express.static(path.join(__dirname, 'public')));
     server.use('/scripts', express.static(`${__dirname}/node_modules/`));
@@ -22,7 +26,7 @@ const AppServer = function() {
   };
 
   this.enableJSONBodyParsing = function(){
-    var bodyParser = require('body-parser');
+    const bodyParser = require('body-parser');
     server.use( bodyParser.json() );
     server.use(bodyParser.urlencoded({
       extended: true

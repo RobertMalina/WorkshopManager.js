@@ -3,22 +3,19 @@ const Action = require('./base/action');
 
 const AuthController = function(/*AuthService class*/ authService) {
   
-  Controller.call(authService);
+  Controller.call(this);
 
-  const service = userService;
+  const service = authService;
 
-  this.registerUser = new Action('/register','POST',( req,res )=>{
-    const userData = req.body;
-    const user = service.createVirtualUser(userData);
-      service
-        .registerAppUser(user)
-        .then(()=>{
-          return res.json(1);
-        })
-        .catch(error => {
-          console.error(error);
-          res.json(error);
-        });
+  this.pluralize = false;
+
+  this.registerUser = new Action('/register','POST', function ( req,res ){
+    service.registerAppUser(req.body).then(()=>{
+        return res.json(1);
+    }).catch((err) => {
+       console.error(err); 
+       res.json(err); 
+    }); 
   },{
     authRequired: true, roles: ['admin']
   });
