@@ -1,20 +1,18 @@
+const AppUser = require('../../DAL/AuthModels/AppUser');
+const Sql  = require('mssql');
+const QueryString = require('../../DAL/db-query-string');
+
+let user;
+
 beforeAll(()=>{
-  const AppUser = require('../../DAL/AuthModels/AppUser');
-})
+
+});
+
+beforeEach(()=>{
+  user = new AppUser();
+});
 
 describe('AppUser EntityModel tests',()=>{
-
-  let AppUser, sql;
-  let user;
-
-  beforeAll(()=>{
-    sql = require('mssql');
-    AppUser = require('../../DAL/AuthModels/AppUser');
-  });
-  
-  beforeEach(()=>{
-    user = new AppUser();
-  });
 
   test('EntityModel should return false if property name is not valid.',()=>{  
     const result = user.set("WrongProperty",32);
@@ -22,41 +20,43 @@ describe('AppUser EntityModel tests',()=>{
   });
   
   test('EntityModel set method works correctly.',()=> {
-    user.set("Username","Jan Kowalski");
+    user.set('Username','George Patton');
+    user.set('PasswordHash','2d928568ce17d1485f6d2c48bce9af5648c59dea');
+    user.set('NotExistingProp', Date.now );
     const properties = user.getModelMap();
     expect(properties).toEqual({
       'Id':{
-        type: sql.BigInt,
+        type: Sql.BigInt,
         value: '',
         autoIncrement: true
       },
       'Username':{
-        type: sql.NVarChar(128),
-        value: 'Jan Kowalski'
+        type: Sql.NVarChar(128),
+        value: 'George Patton'
       },
       'PasswordHash':{
-        type: sql.NVarChar(64),
-        value: ''
+        type: Sql.NVarChar(64),
+        value: '2d928568ce17d1485f6d2c48bce9af5648c59dea'
       }
     });
   });
 });
 
-describe('mssql-module query parser tests', ()=> {
+describe('mssql-module insert-query parser tests', ()=> {
   
-  let QueryString, AppUser;
+  let query;
 
-  beforeAll(()=>{
-    QueryString = require('../../DAL/db-query-string');
-    AppUser = require('../../DAL/AuthModels/AppUser');
+  beforeEach(()=>{
+    query = new QueryString().asInsertFor(user);
   });
 
   test('Should return valid sql-query-string for INSERT AppUser entity.', () => {
-    const user = new AppUser();
-    user.set('Username','George Patton');
-    user.set('PasswordHash','2d928568ce17d1485f6d2c48bce9af5648c59dea');
-    const queryString = new QueryString().asInsertFor(user);
-    expect(queryString).toBe(`INSERT INTO [dbo].[AppUser] ([Username],[PasswordHash]) VALUES (@username,@passwordhash)`);
+    expect(query).toBe(`INSERT INTO [dbo].[AppUser] ([Username],[PasswordHash]) VALUES (@username,@passwordhash)`);
   });
+
+  test('Should contain correct table name', ()=>{
+    expect(query).toMatch(/AppUser/);
+  });
+
 });
 
