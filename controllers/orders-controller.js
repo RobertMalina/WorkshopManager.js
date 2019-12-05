@@ -1,5 +1,6 @@
 const Controller = require('./base/controller');
 const Action = require('./base/action');
+const errorHandler = require('./base/error-handler');
 
 const OrderController = function(/*OrderService class*/ orderService) {
   
@@ -9,7 +10,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
 
   this.hello = new Action('/hello', 'GET', 
     function(req, res) {
-    res.send('Hear me roar!');
+      res.status(200).send('Hear me roar!');
   });
 
   this.getOrders = new Action('', 'GET',  
@@ -18,11 +19,11 @@ const OrderController = function(/*OrderService class*/ orderService) {
       service
         .fetchOrders()
         .then(response => {
-          return res.json(response.recordset);
+          return res.status(200).json(response.recordset);
         })
         .catch(error => {
           console.error(error);
-          res.json(error);
+          res.status(500).json(error);
         });
     },
     { authRequired: true, roles: ['admin'] }
@@ -35,11 +36,11 @@ const OrderController = function(/*OrderService class*/ orderService) {
       service
         .fetchOrder(id)
         .then(response => {
-          return res.json(response.recordset);
+          return res.status(200).json(response.recordset);
         })
         .catch(error => {
           console.error(error);
-          res.json(error);
+          res.status(500).json(error);
         });
     },
     { authRequired: true }

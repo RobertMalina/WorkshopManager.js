@@ -12,10 +12,10 @@ const AuthController = function(/*AuthService class*/ authService) {
 
   this.register = new Action('/register','POST', function ( req, res ){
     service.registerAppUser(req.body).then(()=>{
-        return res.json(1);
+        return res.status(200).json('1 row affected');
     }).catch((err) => {
        console.error(err); 
-       res.json(err); 
+       res.status(500).json(err); 
     }); 
   },{
     authRequired: true, roles: ['admin']
@@ -25,14 +25,14 @@ const AuthController = function(/*AuthService class*/ authService) {
     const { Username, Password } = req.body;
     service.isLoginDataValid( Username, Password ).then((isValid)=>{
       if(isValid){
-        return res.json('Logged in!');
+        return res.status(200).json('Logged in!');
       }
       else{
-        return res.json('Invalid Username || Password...');
+        return res.status(200).json('Invalid Username || Password...');
       }  
     }).catch((err) => {
        console.error(err); 
-       return res.json('Server error during login attempt...');
+       return res.status(500).json('Server error during login attempt...');
     }); 
   });
 
