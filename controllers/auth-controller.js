@@ -1,6 +1,7 @@
 const Controller = require('./base/controller');
 const Action = require('./base/action');
 const Passport = require('passport');
+const errorHandler = require('./base/error-handler');
 
 const AuthController = function(/*AuthService class*/ authService) {
   
@@ -15,7 +16,7 @@ const AuthController = function(/*AuthService class*/ authService) {
         return res.status(200).json('1 row affected');
     }).catch((err) => {
        console.error(err); 
-       res.status(500).json(err); 
+       errorHandler(err); 
     }); 
   },{
     authRequired: true, roles: ['admin']
@@ -32,7 +33,7 @@ const AuthController = function(/*AuthService class*/ authService) {
       }  
     }).catch((err) => {
        console.error(err); 
-       return res.status(500).json('Server error during login attempt...');
+       errorHandler(err);
     }); 
   });
 

@@ -21,9 +21,9 @@ const OrderController = function(/*OrderService class*/ orderService) {
         .then(response => {
           return res.status(200).json(response.recordset);
         })
-        .catch(error => {
-          console.error(error);
-          res.status(500).json(error);
+        .catch(err => {
+          console.error(err);
+          errorHandler(err);
         });
     },
     { authRequired: true, roles: ['admin'] }
@@ -40,7 +40,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
         })
         .catch(error => {
           console.error(error);
-          res.status(500).json(error);
+          errorHandler(err);
         });
     },
     { authRequired: true }
