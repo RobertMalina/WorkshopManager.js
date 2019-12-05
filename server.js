@@ -25,6 +25,25 @@ const AppServer = function() {
     server.listen(this.port);
   };
 
+  this.enableSPA = function(){
+    const Handlebars = require('express-handlebars');
+    server.use((req, res) => {
+      if(req.originalUrl.indexOf('/app') !== -1){
+        console.log('SPA mode active, layout change route detected. Redirrection to index.html file...')
+        res.sendFile(`${__dirname}/public/index.html`)
+      }
+    });
+    server.set('view engine', 'hbs');
+
+    server.engine( 'hbs', Handlebars( {
+      extname: 'hbs',
+      defaultView: 'default',
+      layoutsDir: __dirname + '/public/views/pages/',
+      partialsDir: __dirname + '/public/views/partials/'
+    }));
+    
+  }
+
   this.enableJSONBodyParsing = function(){
     const bodyParser = require('body-parser');
     server.use( bodyParser.json() );
@@ -73,10 +92,12 @@ const AppServer = function() {
           switch (action.httpVerb) {
             case 'GET': {
               server.get(action.route, action.run);
+              console.log(`GET type action registered, route: ${action.route}`);
               break;
             }
             case 'POST': {
               server.post(action.route, action.run);
+              console.log(`POST type action registered, route: ${action.route}`);
               break;
             }
             default: {
