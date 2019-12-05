@@ -2,6 +2,7 @@ const DbAccess = require('../DAL/db-access');
 const Passport = require('passport');
 const BCrypt = require('bcrypt');
 const AppUser = require('../DAL/AuthModels/AppUser');
+const LocalStrategy = require('passport-local').Strategy;
 
 const AuthService = function() {
   
@@ -10,8 +11,48 @@ const AuthService = function() {
   const saltingRounds = 12;
 
   this.secure = function(server){
+
     server.use(Passport.initialize());
     server.use(Passport.session());
+
+    const secStrategy = new LocalStrategy((username, password, done)=>{
+      this.getAppUser(username).then((user)=>{
+        if(!user){
+          console.log(`user with username: ${user} not found`);
+          done(null, false, { message: "Invalid username/password" });
+          return false;
+        }
+        BCrypt.compare(password, user.get('PasswordHash')).then((isValid) => {
+            if(isValid){
+              done(null, user);
+            }
+            else{
+              done(null, false, { message: "Invalid username/password" });
+            }
+          })
+          .catch((err)=>{
+            done(null, false, { message: "Server error occured..." });
+          });;
+      })
+      .catch((err)=>{
+        done(null, false, { message: "Server error occured..." });
+      });
+    });
+
+    Passport.use('local', secStrategy);
+
+    Passport.serializeUser(function(user,done){
+      done(err, user.Id);
+    });
+
+    Passport.deserializeUser(function(userId, done){
+      this.getAppUser(userId).then((appUser)=>{
+        done(null, user);
+      }).catch((err) => {
+        done(err, null);
+      })
+    });
+
   };
 
   this.createVirtualUser = function(userData){   
@@ -40,9 +81,11 @@ const AuthService = function() {
     }).catch((err) => { console.error(err); });
   };
 
-  this.getAppUser = function(username){
+  this.getAppUser = function(/*id or username*/identifier){
+    let idField = isString(identifier) ? `'Username'` : 'Id';
+
     return new Promise((resolve, reject) => {
-      db.run(`select top 1 * from [AppUser] where Username = '${username}'`)
+      db.run(`select top 1 * from [AppUser] where ${idField} = ${identifier}`)
       .then((read) => {
         if(read.recordset.length < 1){
           return null;

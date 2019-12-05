@@ -53,7 +53,7 @@ const AppServer = function() {
     return func && {}.toString.call(func) === '[object Function]';
   };
 
-  const authenticate = function(req, res, next) {
+  this.authenticate = function(req, res, next) {
     console.log('request requires authentication...');
     next();
   };
@@ -68,7 +68,7 @@ const AppServer = function() {
         let action = actions[key];
         if (isActionValid(action)) {
           if (action.authRequired) {
-            server.use(action.route, authenticate);
+            server.use(action.route, this.authenticate);
           }
           switch (action.httpVerb) {
             case 'GET': {

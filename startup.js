@@ -7,6 +7,14 @@ const AuthService = require('./services/auth-service');
 const authService = new AuthService();
 const server = new AppServer();
 authService.secure(server.getInstance());
+server.authenticate = function(req, res, next) {
+  console.log(`passport-authentication: isAuthenticated = ${req.isAuthenticated()}`)
+  if (req.isAuthenticated())
+    next();
+  else{
+    res.redirect("/login");
+  }
+};
 
 server.enableJSONBodyParsing();
 

@@ -1,5 +1,6 @@
 const Controller = require('./base/controller');
 const Action = require('./base/action');
+const Passport = require('passport');
 
 const AuthController = function(/*AuthService class*/ authService) {
   
@@ -21,7 +22,8 @@ const AuthController = function(/*AuthService class*/ authService) {
   });
 
   this.login = new Action('/login','POST', function ( req, res ){
-    service.isLoginDataValid(req.body.Username, req.body.Password).then((isValid)=>{
+    const { Username, Password } = req.body;
+    service.isLoginDataValid( Username, Password ).then((isValid)=>{
       if(isValid){
         return res.json('Logged in!');
       }
@@ -33,5 +35,22 @@ const AuthController = function(/*AuthService class*/ authService) {
        return res.json('Server error during login attempt...');
     }); 
   });
+
+  this.login = new Action('/login','POST', function ( req, res ) {
+    Passport.authenticate('local',{
+      successRedirect: "/login/success",
+      failureRedirect: "/login/error",
+      failureFlash: true
+    });
+  });
+
+  this.loginFailed = new Action('/login/error', 'GET', function ( req, res ) {
+    return res.json('Invalid Username || Password...');
+  })
+
+  this.loginFailed = new Action('/login/success', 'GET', function ( req, res ) {
+    return res.json('Logged in!');
+  })
+
 }
 module.exports = AuthController;
