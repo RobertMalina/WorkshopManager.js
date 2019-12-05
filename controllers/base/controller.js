@@ -10,7 +10,12 @@ const Controller = function(){
     if(this.pluralize){
       controllerName += 's';
     }
-    this.routePrefix = '/' + controllerName;
+    if(this.isApiController){
+      this.routePrefix = `/api/${controllerName}`;
+    }
+    else{
+      this.routePrefix = '/' + controllerName;
+    }    
   }
 
   this.pluralize = true;

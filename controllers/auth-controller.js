@@ -10,6 +10,7 @@ const AuthController = function(/*AuthService class*/ authService) {
   const service = authService;
 
   this.pluralize = false;
+  this.isApiController = true;
 
   this.register = new Action('/register','POST', function ( req, res ){
     service.registerAppUser(req.body).then(()=>{

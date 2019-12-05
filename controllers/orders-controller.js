@@ -8,6 +8,8 @@ const OrderController = function(/*OrderService class*/ orderService) {
 
   const service = orderService;
 
+  this.isApiController = true;
+
   this.hello = new Action('/hello', 'GET', 
     function(req, res) {
       res.status(200).send('Hear me roar!');
