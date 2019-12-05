@@ -14,6 +14,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
 
   this.getOrders = new Action('', 'GET',  
     function( req, res ) {
+      res.setHeader('Content-Type', 'application/json');
       service
         .fetchOrders()
         .then(response => {
@@ -29,6 +30,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
 
   this.getOrder = new Action('/:id', 'GET', 
     function ( req,res ) {
+      res.setHeader('Content-Type', 'application/json');
       const id = req.params.id;
       service
         .fetchOrder(id)
