@@ -1,6 +1,7 @@
 const AppServer = require('./server');
 const OrderController = require('./controllers/orders-controller');
 const AuthController = require('./controllers/auth-controller');
+const AppController = require('./controllers/app-controller');
 const OrderService = require('./services/order-service');
 const AuthService = require('./services/auth-service');
 
@@ -12,16 +13,18 @@ server.authenticate = function(req, res, next) {
   if (req.isAuthenticated())
     next();
   else{
-    res.redirect("/login");
+    res.redirect("/app/login");
   }
 };
 
 server.enableJSONBodyParsing();
+//server.enableSPA();
 
-const apiEndpoints = [
+const endpoints = [
   new AuthController(authService),
-  new OrderController(new OrderService())
+  new OrderController(new OrderService()),
+  new AppController()
 ];
 
-server.registerRoutes(apiEndpoints);
+server.registerRoutes(endpoints);
 server.startOn('4210');
