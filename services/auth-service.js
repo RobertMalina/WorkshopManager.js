@@ -10,7 +10,7 @@ const AuthService = function() {
 
   const saltingRounds = 12;
 
-  this.secure = function(server){
+  this.secure = function(server) {
 
     server.use(Passport.initialize());
     server.use(Passport.session());
@@ -53,6 +53,15 @@ const AuthService = function() {
       })
     });
 
+    //nadpisanie metody serwera (bez mechanizmu autentykacji, nie wykonuje żadnej operacji oprócz logowania w konsoli że wywołano akcję wymagającą uwierzytelnienia)
+    server.authenticate = function(req, res, next) {
+      console.log(`passport-authentication: isAuthenticated = ${req.isAuthenticated()}`)
+      if (req.isAuthenticated())
+        next();
+      else{
+        res.redirect("/app/login");
+      }
+    };
   };
 
   this.createVirtualUser = function(userData){   

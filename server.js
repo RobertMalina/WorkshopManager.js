@@ -23,12 +23,13 @@ const AppServer = function() {
   this.startOn = function(port) {
     this.port = port;
     server.listen(this.port);
+    console.log(`server is listening on port: ${this.port}`);
   };
 
   this.enableSPA = function(){
     const Handlebars = require('express-handlebars');
     server.use((req, res) => {
-      if(req.originalUrl.indexOf('/app') !== -1){
+      if(req.originalUrl.indexOf('/app/') !== -1){
         console.log('SPA mode active, layout change route detected. Redirrection to index.html file...')
         res.sendFile(`${__dirname}/public/index.html`)
       }
@@ -40,8 +41,7 @@ const AppServer = function() {
       defaultView: 'default',
       layoutsDir: __dirname + '/public/views/pages/',
       partialsDir: __dirname + '/public/views/partials/'
-    }));
-    
+    }));  
   }
 
   this.enableJSONBodyParsing = function(){
