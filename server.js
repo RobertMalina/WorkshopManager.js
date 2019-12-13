@@ -77,6 +77,15 @@ const AppServer = function() {
     next();
   };
 
+  this.disableCORS = function(){
+    console.log('CORS constraints disabled for incomming requests');
+    server.use((req, res, next) => {
+      console.log(`Access-Control-Allow-Origin header added to incoming request...`);
+      res.header('Access-Control-Allow-Origin', '*');
+      next();
+    });
+  }
+
   this.registerRoutes = function(controllers) {
     for (let i = 0; i < controllers.length; i++) {
       let controller = controllers[i];

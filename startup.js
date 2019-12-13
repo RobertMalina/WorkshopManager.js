@@ -18,6 +18,9 @@ server.enableJSONBodyParsing();
 //jeśli implementowana byłaby aplikacja kliencka (w obrębie tego projektu)
 //server.enableSPA();
 
+//Aby umożliwić żądania z aplikacji webowych
+server.disableCORS();
+
 const endpoints = [
   new AuthController(authService),
   new OrderController(new OrderService()),
