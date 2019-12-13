@@ -64,6 +64,7 @@ const AuthService = function() {
     };
   };
 
+
   this.createVirtualUser = function(userData){   
     const user = new AppUser();
     if(!user.isValid(userData))
