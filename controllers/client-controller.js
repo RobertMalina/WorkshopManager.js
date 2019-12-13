@@ -16,7 +16,8 @@ const ClientController = function(/*ClientService class*/ clientService) {
       service
         .fetchClients()
         .then(response => {
-          return res.status(200).json(response.recordset);
+          const client = response.recordset.length !== 0 ? response.recordset[0] : null;
+          return res.status(200).json(client);
         })
         .catch(err => {
           console.error(err);
