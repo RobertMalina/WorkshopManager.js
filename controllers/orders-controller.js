@@ -19,7 +19,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
     function( req, res ) {
       res.setHeader('Content-Type', 'application/json');
       service
-        .fetchOrders()
+        .fetchActiveOrders()
         .then(response => {
           return res.status(200).json(response.recordset);
         })
