@@ -11,21 +11,27 @@ const OrderService = function() {
     this.kebabCase = kebabCase ? true : false;
 
     if(!ignoredColumns){
-      this.ignoredColumns = {};
+      this.ignoredColumns = [];
     }
     else {
       this.ignoredColumns = ignoredColumns;
+      this.ignoredColumns.map((colname)=>{colname.toLowerCase()});
     }
 
     this.transform = function() {
       for (var prop in this.rawData) {
+        if(ignoredColumns.indexOf(prop.toLowerCase()) > -1) {
+          continue;
+        }
+
         if (Object.prototype.hasOwnProperty.call(this.rawData, prop)) {
-            if(prop.indexOf('.')) {
+
+            if(prop.indexOf('.') > -1) {            
               let subEntityName = prop.split('.')[0];
               let subEntityPropName = prop.split('.')[1];
               if(this.kebabCase) {
                 subEntityName = subEntityName.charAt(0).toLowerCase();
-                subEntityPropName = subEntityPropName.charAt(0).toLowerCase();
+                subEntityPropName = subEntityPropName.charAt(0).toLowerCase() + subEntityPropName.substring(1);
               }
               this[subEntityName] = this[subEntityName] || {};
               
@@ -34,7 +40,7 @@ const OrderService = function() {
             else{
               let propName = prop;
               if(this.kebabCase) {
-                propName = propName.charAt(0).toLowerCase();
+                propName = propName.charAt(0).toLowerCase() + propName.substring(1);
               }
               this[propName] = this.rawData[prop];
             }
@@ -74,11 +80,12 @@ const OrderService = function() {
         else if(response.recordset.length > 0){
           const entities = [];
           for(let i=0; i<response.recordset.length; i++){
-            let entity = new Entity(response.recordset[i]);
+            let excludedColumns = ['id','decription'];
+            let entity = new Entity(response.recordset[i], excludedColumns, 'kebab-case');
             entity.transform();
             entities.push(entity);
           }
-          
+          console.log(entities);
           resolve(entities);
         }
         else {
@@ -111,13 +118,14 @@ const OrderService = function() {
         (Select C.PhoneNumber from [Client] C where C.Id = O.ClientId) as [Client.PhoneNumber]
         from [Order] O where O.Id = ${id}`)
       .then((response) => {
-        if(response.recordset){
+        if(!response.recordset) {
           resolve(null);
         }
         else if(response.recordset.length > 0){
           const entities = [];
           for(let i=0; i<response.recordset.length; i++){
-            let entity = new Entity(response.recordset[i]);
+            let excludedColumns = ['id','decription'];
+            let entity = new Entity(response.recordset[i], excludedColumns, 'kebab-case');
             entity.transform();
             entities.push(entity);
           }
