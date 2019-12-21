@@ -30,7 +30,7 @@ const OrderService = function() {
               let subEntityName = prop.split('.')[0];
               let subEntityPropName = prop.split('.')[1];
               if(this.kebabCase) {
-                subEntityName = subEntityName.charAt(0).toLowerCase();
+                subEntityName = subEntityName.charAt(0).toLowerCase() + subEntityName.substring(1);
                 subEntityPropName = subEntityPropName.charAt(0).toLowerCase() + subEntityPropName.substring(1);
               }
               this[subEntityName] = this[subEntityName] || {};
@@ -85,7 +85,6 @@ const OrderService = function() {
             entity.transform();
             entities.push(entity);
           }
-          console.log(entities);
           resolve(entities);
         }
         else {
