@@ -21,7 +21,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
       service
         .fetchActiveOrders()
         .then(response => {
-          return res.status(200).json(response.recordset);
+          return res.status(200).json(response);
         })
         .catch(err => {
           console.error(err);
@@ -38,7 +38,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
       service
         .fetchOrder(id)
         .then(response => {
-          return res.status(200).json(response.recordset);
+          return res.status(200).json(response);
         })
         .catch(error => {
           console.error(error);
