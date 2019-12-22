@@ -33,8 +33,7 @@ const OrderService = function() {
                 subEntityName = subEntityName.charAt(0).toLowerCase() + subEntityName.substring(1);
                 subEntityPropName = subEntityPropName.charAt(0).toLowerCase() + subEntityPropName.substring(1);
               }
-              this[subEntityName] = this[subEntityName] || {};
-              
+              this[subEntityName] = this[subEntityName] || {};      
               this[subEntityName][subEntityPropName] = this.rawData[prop];
             }
             else{
@@ -56,7 +55,7 @@ const OrderService = function() {
   this.fetchActiveOrders = function() {
     return new Promise((resolve, reject)=> {
       db.run(`
-      Select O.Id, 
+      SELECT O.Id, 
       O.SupervisorId, 
       O.Title, 
       O.VehicleDescription, 
@@ -67,11 +66,16 @@ const OrderService = function() {
       O.Cost, 
       O.EstimatedTime, 
       O.Status,
-      (Select C.Id from [Client] C where C.Id = O.ClientId) as [Client.Id],
-      (Select C.FirstName from [Client] C where C.Id = O.ClientId) as [Client.FirstName],
-      (Select C.LastName from [Client] C where C.Id = O.ClientId) as [Client.LastName],
-      (Select C.PhoneNumber from [Client] C where C.Id = O.ClientId) as [Client.PhoneNumber]
-      from [Order] O where O.Archived = 0;`)
+      (Select C.Id from [Client] C where C.Id = O.ClientId) AS [Client.Id],
+      (Select C.FirstName from [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
+      (Select C.LastName from [Client] C where C.Id = O.ClientId) AS [Client.LastName],
+      (Select C.PhoneNumber from [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
+	    W.FirstName AS [Supervisor.FirstName],
+      W.LastName AS [Supervisor.LastName],
+      W.PhoneNumber AS [Supervisor.PhoneNumber]
+	    from [Order] O
+	    INNER JOIN [Worker] W on O.SupervisorId = W.Id
+	    WHERE O.Archived = 0`)
       .then((response) => {
         
         if(!response.recordset){
@@ -100,22 +104,27 @@ const OrderService = function() {
   this.fetchOrder = function(id){
     return new Promise((resolve, reject)=> {
       db.run(`
-        Select O.Id, 
-        O.SupervisorId, 
-        O.Title, 
-        O.VehicleDescription, 
-        O.Description, 
-        O.DateRegister, 
-        O.DateStart,
-        O.DateEnd, 
-        O.Cost, 
-        O.EstimatedTime, 
-        O.Status,
-        (Select C.Id from [Client] C where C.Id = O.ClientId) as [Client.Id],
-        (Select C.FirstName from [Client] C where C.Id = O.ClientId) as [Client.FirstName],
-        (Select C.LastName from [Client] C where C.Id = O.ClientId) as [Client.LastName],
-        (Select C.PhoneNumber from [Client] C where C.Id = O.ClientId) as [Client.PhoneNumber]
-        from [Order] O where O.Id = ${id}`)
+      SELECT O.Id, 
+      O.SupervisorId, 
+      O.Title, 
+      O.VehicleDescription, 
+      O.Description, 
+      O.DateRegister, 
+      O.DateStart,
+      O.DateEnd, 
+      O.Cost, 
+      O.EstimatedTime, 
+      O.Status,
+      (Select C.Id from [Client] C where C.Id = O.ClientId) AS [Client.Id],
+      (Select C.FirstName from [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
+      (Select C.LastName from [Client] C where C.Id = O.ClientId) AS [Client.LastName],
+      (Select C.PhoneNumber from [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
+	    W.FirstName AS [Supervisor.FirstName],
+      W.LastName AS [Supervisor.LastName],
+      W.PhoneNumber AS [Supervisor.PhoneNumber]
+	    from [Order] O
+	    INNER JOIN [Worker] W on O.SupervisorId = W.Id
+	    WHERE O.Id = ${id}`)
       .then((response) => {
         if(!response.recordset) {
           resolve(null);
