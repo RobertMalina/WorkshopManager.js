@@ -31,12 +31,48 @@ const OrderController = function(/*OrderService class*/ orderService) {
     { authRequired: true, roles: ['admin'] }
   );
 
+  this.getCount = new Action('/count', 'POST', 
+    function(req, res) {
+      const countArchivedToo = req.body.archivedToo;
+      res.setHeader('Content-Type', 'application/json');
+      service.getOrdersCount(countArchivedToo)
+        .then(response => {
+          return res.status(200).json(response);
+        })
+        .catch(err => {
+          console.error(err);
+          errorHandler(err);
+        });
+    }
+  );
+
+  this.ordersPagedListSet = new Action('/pagedListSet', 'POST',
+    function (req, res) {
+      const { page, itemsOnPage, archivedToo } = req.body;
+      const response = {};
+      service.fetchOrdersForPage(page, itemsOnPage, archivedToo)
+      .then(result => {
+        response.orders = result["orders"];
+        service.getOrdersCount(archivedToo)
+        .then(result =>{
+           response.totalCount = result["ordersCount"];
+           return res.status(200).json(response);
+          });
+      }).catch( err => {
+        errorHandler(err);
+      })
+      .catch( err => {
+        errorHandler(err);
+      });;
+    }
+  );
+
   this.getOrdersForPage = new Action('', 'POST',  
-  function( req, res ) {
-    const { page, itemsOnPage } = req.body;
+    function( req, res ) {
+    const { page, itemsOnPage, archivedToo } = req.body;
     res.setHeader('Content-Type', 'application/json');
     service
-      .fetchOrdersForPage( page,itemsOnPage )
+      .fetchOrdersForPage( page,itemsOnPage, archivedToo )
       .then(response => {
         return res.status(200).json(response);
       })

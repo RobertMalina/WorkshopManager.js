@@ -66,14 +66,14 @@ const OrderService = function() {
       O.Cost, 
       O.EstimatedTime, 
       O.Status,
-      (Select C.Id from [Client] C where C.Id = O.ClientId) AS [Client.Id],
-      (Select C.FirstName from [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
-      (Select C.LastName from [Client] C where C.Id = O.ClientId) AS [Client.LastName],
-      (Select C.PhoneNumber from [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
+      (SELECT C.Id FROM [Client] C where C.Id = O.ClientId) AS [Client.Id],
+      (SELECT C.FirstName FROM [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
+      (SELECT C.LastName FROM [Client] C where C.Id = O.ClientId) AS [Client.LastName],
+      (SELECT C.PhoneNumber FROM [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
 	    W.FirstName AS [Supervisor.FirstName],
       W.LastName AS [Supervisor.LastName],
       W.PhoneNumber AS [Supervisor.PhoneNumber]
-	    from [Order] O
+	    FROM [Order] O
 	    INNER JOIN [Worker] W on O.SupervisorId = W.Id
 	    WHERE O.Archived = 0`)
       .then((response) => {
@@ -101,11 +101,36 @@ const OrderService = function() {
     });
   };
 
-  this.fetchOrdersForPage = function(page,itemsOnPage){
-    let query = `select * from GetOrdersForPage(${page},${itemsOnPage});`;
-    console.log('query:');
-    console.log(query);
-    return db.run(query);
+  this.fetchOrdersForPage = function( page, itemsOnPage, archivedToo ) {
+    let query = `SELECT * FROM GetOrdersForPage( ${page}, ${itemsOnPage}, ${archivedToo ? '1' : '0'});`
+    return new Promise((resolve, reject) => {
+      db.run(query).then((response) => {
+        resolve({
+          orders: response.recordset
+        });
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
+
+  this.getOrdersCount = function(archivedToo){
+    let query = '';
+    if(archivedToo){
+      query = 'SELECT COUNT(o.Id) FROM [Order] o';
+    }
+    else {
+      query = 'SELECT COUNT(o.Id) FROM [Order] o WHERE o.Archived = 0';
+    }
+    return new Promise((resolve, reject) => {
+      db.run(query).then((response) => {
+        resolve({
+          ordersCount: response.recordset[0][""]
+        });
+      }).catch(err => {
+        reject(err);
+      });
+    });
   }
    
   this.fetchOrder = function(id){
@@ -122,14 +147,14 @@ const OrderService = function() {
       O.Cost, 
       O.EstimatedTime, 
       O.Status,
-      (Select C.Id from [Client] C where C.Id = O.ClientId) AS [Client.Id],
-      (Select C.FirstName from [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
-      (Select C.LastName from [Client] C where C.Id = O.ClientId) AS [Client.LastName],
-      (Select C.PhoneNumber from [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
+      (SELECT C.Id FROM [Client] C where C.Id = O.ClientId) AS [Client.Id],
+      (SELECT C.FirstName FROM [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
+      (SELECT C.LastName FROM [Client] C where C.Id = O.ClientId) AS [Client.LastName],
+      (SELECT C.PhoneNumber FROM [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
 	    W.FirstName AS [Supervisor.FirstName],
       W.LastName AS [Supervisor.LastName],
       W.PhoneNumber AS [Supervisor.PhoneNumber]
-	    from [Order] O
+	    FROM [Order] O
 	    INNER JOIN [Worker] W on O.SupervisorId = W.Id
 	    WHERE O.Id = ${id}`)
       .then((response) => {
@@ -141,8 +166,7 @@ const OrderService = function() {
           for(let i=0; i<response.recordset.length; i++){
             let excludedColumns = ['id','decription'];
             let entity = new Entity(response.recordset[i], excludedColumns, 'kebab-case');
-            entity.transform();
-            entities.push(entity);
+            entities.push(entity.transform());
           }
           resolve(entities);
         }
