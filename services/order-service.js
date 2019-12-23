@@ -84,7 +84,7 @@ const OrderService = function() {
         else if(response.recordset.length > 0){
           const entities = [];
           for(let i=0; i<response.recordset.length; i++){
-            let excludedColumns = ['id','decription'];
+            let excludedColumns = ['description'];
             let entity = new Entity(response.recordset[i], excludedColumns, 'kebab-case');
             entity.transform();
             entities.push(entity);

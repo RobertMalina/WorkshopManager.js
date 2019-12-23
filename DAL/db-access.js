@@ -5,6 +5,10 @@ const DbAccess = function() {
   const configuration = require('../server.config');
   const dbConnectionConfig = configuration.db;
 
+  sql.on('error', err => {
+    console.warn(err);
+  })
+
   const isEntityModelValid = function (entityModel) {   
     if(!entityModel.hasOwnProperty("getModelMap")){
       console.error('Passed object does not implement required features of entityModel ...');
@@ -40,6 +44,7 @@ const DbAccess = function() {
   }
 
   this.run = function(sqlStatement, columnDatas){
+    
     return new Promise(function(resolve, reject) {
       sql.connect(dbConnectionConfig, function(err) {
         if (err) {

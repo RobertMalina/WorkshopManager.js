@@ -69,7 +69,7 @@ const AuthService = function() {
     const user = new AppUser();
     if(!user.isValid(userData))
     {
-      console.error('Post body does not confrom to registration model...');
+      console.error('Post body does not conform to registration model...');
       return null;
     }
 

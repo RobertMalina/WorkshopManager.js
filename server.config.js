@@ -19,6 +19,11 @@ module.exports = {
     user: DEV_SQLSERVER_USERNAME,
     password: DEV_SQLSERVER_USERPSWD,
     server: DEV_SQLSERVER_IP_ADDR,
-    database: DEV_DB_NAME
+    database: DEV_DB_NAME,
+    pool: {
+      max: 15,
+      min: 10,
+      idleTimeoutMillis: 3000
+    }
   }
 }
