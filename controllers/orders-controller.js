@@ -31,6 +31,23 @@ const OrderController = function(/*OrderService class*/ orderService) {
     { authRequired: true, roles: ['admin'] }
   );
 
+  this.getOrdersForPage = new Action('', 'POST',  
+  function( req, res ) {
+    const { page, itemsOnPage } = req.body;
+    res.setHeader('Content-Type', 'application/json');
+    service
+      .fetchOrdersForPage( page,itemsOnPage )
+      .then(response => {
+        return res.status(200).json(response);
+      })
+      .catch(err => {
+        console.error(err);
+        errorHandler(err);
+      });
+  },
+  { authRequired: true, roles: ['admin'] }
+);
+
   this.getOrder = new Action('/:id', 'GET', 
     function ( req,res ) {
       res.setHeader('Content-Type', 'application/json');

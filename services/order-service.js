@@ -100,6 +100,13 @@ const OrderService = function() {
       });
     });
   };
+
+  this.fetchOrdersForPage = function(page,itemsOnPage){
+    let query = `select * from GetOrdersForPage(${page},${itemsOnPage});`;
+    console.log('query:');
+    console.log(query);
+    return db.run(query);
+  }
    
   this.fetchOrder = function(id){
     return new Promise((resolve, reject)=> {
