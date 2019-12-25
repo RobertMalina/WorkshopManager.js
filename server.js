@@ -3,6 +3,7 @@ const AppServer = function() {
   const path = require('path');
   const routeTable = {};
   const server = express();
+  const CORS = require('cors');
   this.port = null;
 
   this.getInstance = function(){
@@ -77,11 +78,14 @@ const AppServer = function() {
     next();
   };
 
-  this.disableCORS = function(){
+  this.enableCORS = function() {
+    server.use(CORS());
     console.log('CORS constraints disabled for incomming requests');
     server.use((req, res, next) => {
-      console.log(`Access-Control-Allow-Origin header added to incoming request...`);
-      res.header('Access-Control-Allow-Origin', '*');
+      console.log(`Access-Control-Allow-Origin headers added to incoming request...`);
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       next();
     });
   }

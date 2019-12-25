@@ -21,7 +21,7 @@ server.enableJSONBodyParsing();
 //server.enableSPA();
 
 //Aby umożliwić żądania z aplikacji webowych
-server.disableCORS();
+server.enableCORS();
 
 const endpoints = [
   new AuthController(authService),
