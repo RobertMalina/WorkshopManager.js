@@ -17,7 +17,6 @@ const WorkerController = function(/*workerService class*/ workerService) {
       service
         .getWorkersOfOrders(ordersIds)
         .then(response => {
-          console.log(response);
           return res.status(200).json(response);
         })
         .catch(err => {
