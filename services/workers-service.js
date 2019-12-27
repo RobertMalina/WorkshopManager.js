@@ -1,18 +1,16 @@
 const DbAccess = require('../DAL/db-access');
+const QueryStore = require('../DAL/query-store');
 
 const WorkersService = function() {
   
   const db = new DbAccess();
+  const queryStore = new QueryStore();
 
   const sqlHandler = require('mssql')
 
   this.getWorkersOfOrder = function(orderId){
-    return db.run(`
-          SELECT
-          W.FirstName,
-          W.LastName,
-          W.PhoneNumber FROM [Worker] W
-          INNER JOIN OrderToWorker otw on otw.WorkerId = W.Id and otw.OrderId = @orderId`,
+    const query = queryStore.get('selectWorkersOfOrder');
+    return db.run( query,
           [{
             argName: 'orderId',
             type: sqlHandler.BigInt,
@@ -23,17 +21,13 @@ const WorkersService = function() {
       })
   };
 
-  this.getWorkersOfOrders = function(ordersIds) {
-    
-    let readPromises = []; 
+  this.getWorkersOfOrders = function(ordersIds) {   
+    const readPromises = [];
+    const query = queryStore.get('selectWorkersOfOrder');
+
     for (let i =0; i < ordersIds.length; i++){
         readPromises.push( new Promise ((resolve, reject) => {
-          db.run(`
-          SELECT
-          W.FirstName,
-          W.LastName,
-          W.PhoneNumber FROM [Worker] W
-          INNER JOIN OrderToWorker otw on otw.WorkerId = W.Id and otw.OrderId = @orderId`,
+          db.run( query,
           [{
             argName: 'orderId',
             type: sqlHandler.BigInt,

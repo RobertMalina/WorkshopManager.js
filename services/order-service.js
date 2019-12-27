@@ -1,8 +1,10 @@
 const DbAccess = require('../DAL/db-access');
+const QueryStore = require('../DAL/query-store');
 
 const OrderService = function() {
   
   const db = new DbAccess();
+  const queryStore = new QueryStore();
 
   const Entity = function(readData, ignoredColumns, kebabCase ){
     
@@ -51,44 +53,20 @@ const OrderService = function() {
       delete this.ignoredColumns;
     }
   }
-
+  
   this.fetchActiveOrders = function() {
     return new Promise((resolve, reject)=> {
-      db.run(`
-      SELECT O.Id, 
-      O.SupervisorId, 
-      O.Title, 
-      O.VehicleDescription, 
-      O.Description, 
-      O.DateRegister, 
-      O.DateStart,
-      O.DateEnd, 
-      O.Cost, 
-      O.EstimatedTime, 
-      O.Status,
-      (SELECT C.Id FROM [Client] C where C.Id = O.ClientId) AS [Client.Id],
-      (SELECT C.FirstName FROM [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
-      (SELECT C.LastName FROM [Client] C where C.Id = O.ClientId) AS [Client.LastName],
-      (SELECT C.PhoneNumber FROM [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
-	    W.FirstName AS [Supervisor.FirstName],
-      W.LastName AS [Supervisor.LastName],
-      W.PhoneNumber AS [Supervisor.PhoneNumber]
-	    FROM [Order] O
-	    INNER JOIN [Worker] W on O.SupervisorId = W.Id
-	    WHERE O.Archived = 0`)
+      db.run(queryStore.get('selectOrdersNonArchivized'))
       .then((response) => {
         
         if(!response.recordset){
           resolve(null);
         }
         else if(response.recordset.length > 0){
-          const entities = [];
-          for(let i=0; i<response.recordset.length; i++){
-            let excludedColumns = ['description'];
-            let entity = new Entity(response.recordset[i], excludedColumns, 'kebab-case');
-            entity.transform();
-            entities.push(entity);
-          }
+          const entities = this.asEntites(response.recordset, 
+            { 
+              excludedColumns: ['description']
+            });
           resolve(entities);
         }
         else {
@@ -102,7 +80,11 @@ const OrderService = function() {
   };
 
   this.fetchOrdersForPage = function( page, itemsOnPage, archivedToo ) {
-    let query = `SELECT * FROM GetOrdersForPage( ${page}, ${itemsOnPage}, ${archivedToo ? '1' : '0'});`
+    let query = queryStore.get('selectOrdersForPagedList', {
+      page: page,
+      itemsOnPage: itemsOnPage,
+      archivedToo: archivedToo
+    });
     return new Promise((resolve, reject) => {
       db.run(query).then((response) => {
         resolve({
@@ -117,10 +99,10 @@ const OrderService = function() {
   this.getOrdersCount = function(archivedToo){
     let query = '';
     if(archivedToo){
-      query = 'SELECT COUNT(o.Id) FROM [Order] o';
+      query = queryStore.get('selectOrdersCountAll');
     }
     else {
-      query = 'SELECT COUNT(o.Id) FROM [Order] o WHERE o.Archived = 0';
+      query = queryStore.get('selectOrdersCountNonArchivized');
     }
     return new Promise((resolve, reject) => {
       db.run(query).then((response) => {
@@ -132,42 +114,41 @@ const OrderService = function() {
       });
     });
   }
+
+  this.asEntites = function (recordset /*odczyt z bazy*/, options) {
+    if(!recordset) {
+      console.error('Parametr recordset musi mieć wartość...');
+      return [];
+    }
+    options = options || {};
+    if(!options.excludedColumns) {
+      options.excludedColumns = [];
+    }
+
+    const entititesArr = [];
+
+    recordset.map((record) => {
+      let entity = new Entity(record, options.excludedColumns, 'kebab-case');
+      entity.transform();
+      entititesArr.push(entity);
+    });
+
+    console.log(`entities: ${entititesArr}`);
+    return entititesArr;
+  }
    
   this.fetchOrder = function(id){
     return new Promise((resolve, reject)=> {
-      db.run(`
-      SELECT O.Id, 
-      O.SupervisorId, 
-      O.Title, 
-      O.VehicleDescription, 
-      O.Description, 
-      O.DateRegister, 
-      O.DateStart,
-      O.DateEnd, 
-      O.Cost, 
-      O.EstimatedTime, 
-      O.Status,
-      (SELECT C.Id FROM [Client] C where C.Id = O.ClientId) AS [Client.Id],
-      (SELECT C.FirstName FROM [Client] C where C.Id = O.ClientId) AS [Client.FirstName],
-      (SELECT C.LastName FROM [Client] C where C.Id = O.ClientId) AS [Client.LastName],
-      (SELECT C.PhoneNumber FROM [Client] C where C.Id = O.ClientId) AS [Client.PhoneNumber],
-	    W.FirstName AS [Supervisor.FirstName],
-      W.LastName AS [Supervisor.LastName],
-      W.PhoneNumber AS [Supervisor.PhoneNumber]
-	    FROM [Order] O
-	    INNER JOIN [Worker] W on O.SupervisorId = W.Id
-	    WHERE O.Id = ${id}`)
+      db.run(queryStore.get('selectOrderWithId', { id:id }))
       .then((response) => {
         if(!response.recordset) {
           resolve(null);
         }
-        else if(response.recordset.length > 0){
-          const entities = [];
-          for(let i=0; i<response.recordset.length; i++){
-            let excludedColumns = ['id','decription'];
-            let entity = new Entity(response.recordset[i], excludedColumns, 'kebab-case');
-            entities.push(entity.transform());
-          }
+        else if(response.recordset.length > 0){        
+          const entities = this.asEntites(response.recordset, 
+            { 
+              excludedColumns: ['id','decription']
+            });
           resolve(entities);
         }
         else {
