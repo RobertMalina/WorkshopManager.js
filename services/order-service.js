@@ -8,7 +8,6 @@ const OrderService = function() {
   const db = new DbAccess();
   const queryStore = new QueryStore();
 
-  
   this.fetchActiveOrders = function() {
     return new Promise((resolve, reject)=> {
       db.run(queryStore.get('selectOrdersNonArchivized'))
@@ -74,8 +73,6 @@ const OrderService = function() {
     });
   }
 
-
-   
   this.fetchOrder = function(id){
     return new Promise((resolve, reject)=> {
       db.run(queryStore.get('selectOrderWithId', { id:id }))

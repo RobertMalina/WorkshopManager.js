@@ -1,24 +1,30 @@
 const DbAccess = require('../DAL/db-access');
 const QueryStore = require('../DAL/query-store');
+const { asEntites } = require('../DAL/Models/entity')
 
 const WorkersService = function() {
   
   const db = new DbAccess();
   const queryStore = new QueryStore();
 
-  const sqlHandler = require('mssql')
+  const sqlHandler = require('mssql');
 
   this.getWorkersOfOrder = function(orderId){
     const query = queryStore.get('selectWorkersOfOrder');
-    return db.run( query,
-          [{
+     return new Promise((resolve, reject) => {
+      db.run(query,[{
             argName: 'orderId',
             type: sqlHandler.BigInt,
             value: orderId
           }])
-      .catch((err)=> {
-        console.log(err);
-      })
+          .then((response) => {     
+          resolve({
+            mechanicians: asEntites(response.recordset)
+          });
+      }).catch(err => {
+        reject(err);
+      });
+    });     
   };
 
   this.getWorkersOfOrders = function(ordersIds) {   
@@ -37,7 +43,7 @@ const WorkersService = function() {
             if(response.recordset) {
               resolve({
                 orderId: ordersIds[i],
-                mechanicians: response.recordset
+                mechanicians: asEntites(response.recordset)
               });
             }
           })
