@@ -60,14 +60,8 @@ const QueryStore = function () {
       return 'SELECT COUNT(o.Id) FROM [Order] o WHERE o.Archived = 0';
     },
     selectOrdersForPagedList: function(args) {
-      if(!args.page){
-        console.error('Parametr page jest wymagany!');
-        return '';
-      }
-      if(!args.itemsOnPage){
-        console.error('Parametr itemsOnPage jest wymagany!');
-        return '';
-      }
+      args.page = args.page || 0;
+      args.itemsOnPage = args.itemsOnPage || 5;
       return `SELECT * FROM GetOrdersForPage( ${args.page}, ${args.itemsOnPage}, ${args.archivedToo ? '1' : '0'});`
     },
     //[Worker]
