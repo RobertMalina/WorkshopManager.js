@@ -62,8 +62,6 @@
       entity.transform();
       entititesArr.push(entity);
     });
-
-    console.log(`entities: ${entititesArr}`);
     return entititesArr;
   }
 
