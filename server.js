@@ -1,3 +1,6 @@
+const Controller = require('./controllers/base/controller');
+const { checkAction, Action } = require('./controllers/base/action');
+
 const AppServer = function() {
   const express = require('express');
   const path = require('path');
@@ -54,19 +57,7 @@ const AppServer = function() {
   };
 
   const isActionValid = function(action) {
-    if (!action.httpVerb) {
-      console.error('Brak typu akcji...');
-      return false;
-    }
-    if (!action.route) {
-      console.error('Brak trasy dla akcji...');
-      return false;
-    }
-    if (!action.run || !isFunction(action.run)) {
-      console.error('Brak funkcji wywołania zwrotnego dla akcji...');
-      return false;
-    }
-    return true;
+
   };
 
   const isFunction = function(func) {
@@ -80,7 +71,7 @@ const AppServer = function() {
 
   this.enableCORS = function() {
     server.use(CORS());
-    console.log('CORS constraints disabled for incomming requests');
+    console.log('CORS policy headers will be added to incoming requests');
     server.use((req, res, next) => {
       console.log(`Access-Control-Allow-Origin headers added to incoming request...`);
       res.header("Access-Control-Allow-Origin", "*");
@@ -90,37 +81,74 @@ const AppServer = function() {
     });
   }
 
-  this.registerRoutes = function(controllers) {
+  this.registerRoutes = function(/*array of (instance of) Controller*/controllers) {
+    const results = [];
     for (let i = 0; i < controllers.length; i++) {
       let controller = controllers[i];
+      if(controller instanceof Controller){
+        console.warn('One of passed routes provider is not instance of Controller, routes registration failed...');
+        return null;
+      }
 
       const actions = controller.getActions();
-
+      let registered;
+      
       for (const key in actions) {
         let action = actions[key];
-        if (isActionValid(action)) {
+        if (checkAction(action).isOk) {
           if (action.authRequired) {
             server.use(action.route, this.authenticate);
           }
+          action.httpVerb = action.httpVerb.toUpperCase();
           switch (action.httpVerb) {
             case 'GET': {
-              server.get(action.route, action.run);
-              console.log(`GET type action registered, route: ${action.route}`);
+              server.get(action.route, action.run);        
               break;
             }
             case 'POST': {
               server.post(action.route, action.run);
-              console.log(`POST type action registered, route: ${action.route}`);
               break;
             }
+            case 'PUT': {
+              server.put(action.route, action.run);
+              break;
+            }
+            case 'DELETE': {
+              server.delete(action.route, action.run);
+              break;
+            }                       
             default: {
               break;
             }
           }
+          results.push(action.asRegistrationResult());
+        }
+        else{
+          let errMsg = checkAction(action).msg;
+          results.push(action.asRegistrationResult({ errMsg:errMsg  }));
         }
       }
     }
+    printRegisteredRoutes(results);
+    return results;
   };
+
+  const printRegisteredRoutes = function(/*array of { registered:bool, type:string, route: string }*/ registerResults ){
+    registerResults = registerResults.sort((a,b)=>{
+      if(a.registered) { return -1; }
+      if(a.registered && b.registered) { return 0; }
+      else { return 1; }
+    });
+    registerResults.forEach((res) => {
+      if(res.registered){
+        console.log(`${res.type.toUpperCase()} action registered\t:\t ${res.route}`)
+      }
+      else{
+        console.warn(`Some issues have been deteced while registration of the route: ${res.errMsg}`);
+      }
+    });
+  }
+
   onInit();
 };
 

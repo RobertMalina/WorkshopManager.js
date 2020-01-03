@@ -29,4 +29,24 @@ const Action = function(path, httpVerb, run, securityConfig) {
   }
 };
 
-module.exports = Action;
+const checkAction = function(/*{}:Action*/ action) {
+    if(action instanceof Action === false){
+      return { isOk: false, msg:`Object is not an Action` };   
+    }
+
+    if (!action.httpVerb) {
+      return { isOk: false, msg:`No http-method type provided for route.` };
+    }
+    else if(['GET','POST','PUT','DELETE'].indexOf(action.httpVerb) < 0 ) {
+      return { isOk: false, msg:`Passed http-method is incorrect or not supported... (${action.httpVerb}).` };
+    }
+
+    if (!action.route) {
+      return { isOk: false, msg:'No route provided for action.' };
+      return false;
+    }
+    if (!action.run || !isFunction(action.run)) {
+      return { isOk: false, msg:'No handler provided for route.' };
+    }
+    return { isOk: true, msg:'' };
+}
