@@ -1,13 +1,17 @@
-const ControllerAction = require('./action');
+const { Action } = require('./action');
 
-const Controller = function(){
+const Controller = function(config){
+  config = config || {};
+  this.isApiController = config.isApiController || false;
+  this.pluralize = config.pluralize === undefined ? true : config.pluralize;
+  this.routePrefix = null;
 
   this.setDefaultRoutePrefix = function(){
     let controllerName = this.constructor.name;
     let conventionalPartStartIndex = controllerName.indexOf('Controller');
     controllerName = controllerName.slice(0,conventionalPartStartIndex);
     controllerName = controllerName.toLowerCase();
-    if(this.pluralize){
+    if(this.pluralize) {
       controllerName += 's';
     }
     if(this.isApiController){
@@ -18,20 +22,16 @@ const Controller = function(){
     }    
   }
 
-  this.pluralize = true;
-
-  this.routePrefix = null;
-
   this.getActions = function() {
     const actions = [];
     for(var key in this)
       {
         if(this.hasOwnProperty(key))
         {
-          if(this[key] instanceof ControllerAction)
+          if(this[key] instanceof Action)
           {
             const action = this[key];
-            action.route = this.asRoute(action.path);
+            action.setAsRouteOf(this);
             actions.push(action);          
           }
         }

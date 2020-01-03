@@ -1,14 +1,15 @@
 const Controller = require('./base/controller');
-const Action = require('./base/action');
+const { Action } = require('./base/action');
 const errorHandler = require('./base/error-handler');
 
 const WorkerController = function(/*workerService class*/ workerService) {
   
-  Controller.call(this);
+  Controller.call( this, {
+    isApiController: true,
+    pluralize: true
+  });
 
   const service = workerService;
-
-  this.isApiController = true;
 
   this.getMechaniciansOfOrders = new Action('/engagedInOrders', 'POST',  
     function( req, res ) {

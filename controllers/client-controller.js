@@ -1,14 +1,15 @@
 const Controller = require('./base/controller');
-const Action = require('./base/action');
+const { Action } = require('./base/action');
 const errorHandler = require('./base/error-handler');
 
 const ClientController = function(/*ClientService class*/ clientService) {
   
-  Controller.call(this);
+  Controller.call( this, {
+    isApiController: true,
+    pluralize: true
+  });
 
   const service = clientService;
-
-  this.isApiController = true;
 
   this.getClients = new Action('', 'GET',  
     function( req, res ) {

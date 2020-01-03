@@ -1,12 +1,13 @@
 const Controller = require('./base/controller');
-const Action = require('./base/action');
+const { Action } = require('./base/action');
 const errorHandler = require('./base/error-handler');
 
 const AppController = function() {
   
-  Controller.call(this);
-
-  this.pluralize = false;
+  Controller.call( this, {
+    isApiController: false,
+    pluralize: false
+  });
 
   this.home = new Action('/home', 'GET', function(req, res){
     res.render('home', {layout: 'default', template: 'home-template'});

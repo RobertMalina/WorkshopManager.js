@@ -1,16 +1,16 @@
 const Controller = require('./base/controller');
-const Action = require('./base/action');
+const { Action } = require('./base/action');
 const Passport = require('passport');
 const errorHandler = require('./base/error-handler');
 
 const AuthController = function(/*AuthService class*/ authService) {
   
-  Controller.call(this);
+  Controller.call( this, {
+    isApiController: true,
+    pluralize: false
+  });
 
   const service = authService;
-
-  this.pluralize = false;
-  this.isApiController = true;
 
   this.register = new Action('/register','POST', function ( req, res ){
     service.registerAppUser(req.body).then(()=>{

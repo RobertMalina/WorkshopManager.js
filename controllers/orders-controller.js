@@ -1,14 +1,15 @@
 const Controller = require('./base/controller');
-const Action = require('./base/action');
+const { Action } = require('./base/action');
 const errorHandler = require('./base/error-handler');
 
 const OrderController = function(/*OrderService class*/ orderService) {
   
-  Controller.call(this);
+  Controller.call( this, {
+    isApiController: true,
+    pluralize: true
+  });
 
   const service = orderService;
-
-  this.isApiController = true;
 
   this.hello = new Action('/hello', 'GET', 
     function(req, res) {
@@ -82,7 +83,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
       });
   },
   { authRequired: true, roles: ['admin'] }
-);
+  );
 
   this.getOrder = new Action('/:id', 'GET', 
     function ( req,res ) {
