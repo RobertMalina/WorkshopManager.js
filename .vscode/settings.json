@@ -1,5 +1,7 @@
 {
   "editor.formatOnSave": false,
+  "vscode-qunit.file":"D:/VsCodeProjects/KingsLandingProject/Tests.Qunit/index.html",
+  "vscode-qunit.showExecutionTimes": true,
   "liveSassCompile.settings.formats": [
     {
       "format": "expanded",
