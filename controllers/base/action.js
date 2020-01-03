@@ -22,11 +22,22 @@ const Action = function(path, httpVerb, run, securityConfig) {
     this.roles = 'all';
   }
   this.run = run;
+
   this.setAsRouteOf = function(/*{}:Controller*/ controller) {
     let prefix = controller.getRoutePrefix();
     this.path = this.path || '';
     this.route = `${prefix}${this.path}`;
   }
+
+  this.asRegistrationResult = function(/*{ errMsg:string }*/errConfig) {
+    return {
+      route: this.route || `NOT-ASSIGNED${this.path}`,
+      type: this.httpVerb.toUpperCase(),
+      registered: errConfig ? false : true,
+      errMsg: errConfig ? errConfig.errMsg : null
+    };
+  };
+
 };
 
 const checkAction = function(/*{}:Action*/ action) {
@@ -50,3 +61,8 @@ const checkAction = function(/*{}:Action*/ action) {
     }
     return { isOk: true, msg:'' };
 }
+
+module.exports = {
+  Action: Action,
+  checkAction: checkAction
+};
