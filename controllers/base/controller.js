@@ -39,12 +39,11 @@ const Controller = function(){
     return actions;
   };
 
-  this.asRoute = function(path){
+  this.getRoutePrefix = function() {
     if(this.routePrefix === null){
       this.setDefaultRoutePrefix();
     }
-    path || '';
-    return this.routePrefix + path;
+    return this.routePrefix;
   }
 
   this.getName = function(){

@@ -22,6 +22,11 @@ const Action = function(path, httpVerb, run, securityConfig) {
     this.roles = 'all';
   }
   this.run = run;
+  this.setAsRouteOf = function(/*{}:Controller*/ controller) {
+    let prefix = controller.getRoutePrefix();
+    this.path = this.path || '';
+    this.route = `${prefix}${this.path}`;
+  }
 };
 
 module.exports = Action;
