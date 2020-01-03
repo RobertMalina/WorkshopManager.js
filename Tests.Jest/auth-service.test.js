@@ -3,7 +3,7 @@ const AppUser = require('../DAL/AuthModels/AppUser');
 
 let service;
 
-beforeAll(()=>{
+beforeAll(() => {
   service = new AuthService();
 });
 
@@ -16,8 +16,8 @@ test('Should return instance of AppUser', (done)=>{
     expect(user).toBeInstanceOf(AppUser);
     done();
   }).catch((error) => {
-     console.log(error);
-      done(); 
+    console.log(error);
+    done(); 
   }); 
 });
 
