@@ -6,7 +6,13 @@ const {
   DEV_SQLSERVER_USERNAME,
   DEV_SQLSERVER_USERPSWD,
   DEV_SQLSERVER_IP_ADDR,
-  DEV_DB_NAME
+  DEV_DB_NAME,
+
+  TEST_SQLSERVER_USERNAME,
+  TEST_SQLSERVER_USERPSWD,
+  TEST_SQLSERVER_IP_ADDR,
+  TEST_DB_NAME
+
 } = process.env;
 
 assert( DEV_SQLSERVER_USERNAME, "You must set DEV_SQLSERVER_USERNAME in your local .env file." );
@@ -20,6 +26,17 @@ module.exports = {
     password: DEV_SQLSERVER_USERPSWD,
     server: DEV_SQLSERVER_IP_ADDR,
     database: DEV_DB_NAME,
+    pool: {
+      max: 15,
+      min: 10,
+      idleTimeoutMillis: 3000
+    }
+  },
+  dbTest: {
+    user: TEST_SQLSERVER_USERNAME,
+    password: TEST_SQLSERVER_USERPSWD,
+    server: TEST_SQLSERVER_IP_ADDR,
+    database: TEST_DB_NAME,
     pool: {
       max: 15,
       min: 10,
