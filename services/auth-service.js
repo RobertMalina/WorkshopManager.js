@@ -66,18 +66,18 @@ const AuthService = function() {
 
 
   this.createVirtualUser = function(userData){   
-    const user = new AppUser();
+    const user = new AppUser();  
     if(!user.isValid(userData))
     {
       console.error('Post body does not conform to registration model...');
       return null;
     }
-
-    return new Promise((resolve, reject) => {
+    const { Username, Password } = userData;
+    return new Promise((resolve, reject) => {     
       BCrypt.genSalt(saltingRounds).then((salt) => {
-        BCrypt.hash(userData.Password, salt).then((passwordHash)=>{
-          user.set('Username', userData.Username);
-          user.set('PasswordHash', passwordHash);
+        BCrypt.hash(Password, salt).then((passwordHash)=>{
+          user.set('Username', Username);
+          user.set('PasswordHash', passwordHash);         
           resolve(user);
         }).catch((err) => reject(err));
       })

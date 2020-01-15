@@ -23,6 +23,20 @@ const AuthController = function(/*AuthService class*/ authService) {
     authRequired: true, roles: ['admin']
   });
 
+  this.register = new Action('/receive/bcrypted','POST', function ( req, res ){
+    service.createVirtualUser(req.body).then((user) => {      
+        return res.status(200).json({
+          PasswordHash: user.get("PasswordHash"),
+          Username: user.get("Username")
+        });
+    }).catch((err) => {
+       console.error(err); 
+       errorHandler(err);
+    }); 
+  },{
+    authRequired: true, roles: ['admin']
+  });
+
   this.login = new Action('/login','POST', function ( req, res ){
     const { Username, Password } = req.body;
     service.isLoginDataValid( Username, Password ).then((isValid)=>{
