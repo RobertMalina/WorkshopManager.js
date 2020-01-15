@@ -65,13 +65,11 @@ const AppServer = function() {
   };
 
   this.authenticate = function(req, res, next) {
-    console.log('request requires authentication...');
     next();
   };
 
   this.enableCORS = function() {
     server.use(CORS());
-    console.log('CORS policy headers will be added to incoming requests');
     server.use((req, res, next) => {
       console.log(`Access-Control-Allow-Origin headers added to incoming request...`);
       res.header("Access-Control-Allow-Origin", "*");
