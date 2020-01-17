@@ -49,7 +49,6 @@ const DbAccess = function() {
     
     return new Promise(function(resolve, reject) {
       const connSettings = dbConnectData.dbDynamic(this.target || "-dev");
-      console.log(connSettings);
       sql.connect(connSettings, function(err) {
         if (err) {
           console.log(err);
@@ -57,7 +56,7 @@ const DbAccess = function() {
         }
         const request = new sql.Request();
 
-        if(columnDatas){
+        if(columnDatas) {
           for(let i = 0; i < columnDatas.length; i++ ){
             let columnData = columnDatas[i];
             request.input(columnData.argName, columnData.type, columnData.value );
