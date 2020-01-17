@@ -2,8 +2,10 @@ const QueryString = require('./db-query-string');
 
 const DbAccess = function() {
   const sql = require('mssql');
-  const configuration = require('../server.config');
-  const dbConnectionConfig = configuration.db;
+  const dbConnectData = require('../server.config');
+
+  //-dev (for development database) || -test (for test database)
+  this.target = '-dev';
 
   sql.on('error', err => {
     console.warn(err);
@@ -46,7 +48,9 @@ const DbAccess = function() {
   this.run = function(sqlStatement, columnDatas){
     
     return new Promise(function(resolve, reject) {
-      sql.connect(dbConnectionConfig, function(err) {
+      const connSettings = dbConnectData.dbDynamic(this.target || "-dev");
+      console.log(connSettings);
+      sql.connect(connSettings, function(err) {
         if (err) {
           console.log(err);
           return;
@@ -64,7 +68,9 @@ const DbAccess = function() {
           if (err) {
             console.log(err);
             reject(err);
+            sql.close()
           }
+          sql.close();
           resolve(recordset);
         });
       });

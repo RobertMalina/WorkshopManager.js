@@ -1,4 +1,5 @@
 const AppServer = require('./server');
+
 const OrderController = require('./controllers/orders-controller');
 const AuthController = require('./controllers/auth-controller');
 const AppController = require('./controllers/app-controller');
@@ -33,3 +34,11 @@ const endpoints = [
 
 server.registerRoutes(endpoints);
 server.startOn('4210');
+
+if(process.argv.indexOf('with-cli') !== -1 ){
+  console.log('Server app instance was launched with a command line interface.')
+  const AppCli = require('./cli/app');
+  const cliInstance = new AppCli();
+  cliInstance.run();
+}
+
