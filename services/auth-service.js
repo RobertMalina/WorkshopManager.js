@@ -106,7 +106,7 @@ const AuthService = function() {
       db.run(query)
       .then((read) => {
         if(read.recordset.length < 1){
-          return null;
+          resolve(null);
         }
         else{
           const user = new AppUser();
@@ -115,7 +115,7 @@ const AuthService = function() {
           user.set('PasswordHash',read.recordset[0].PasswordHash);
           resolve(user);
         }
-      });    
+      }).catch(err => { reject(err)});    
     });
   };
 
