@@ -8,7 +8,7 @@ action1 = new Action('/count','GET',()=>{},{});
 action2 = new Action('/of/order/:id','POST',()=>{},{});
 action3 = new Action('/:id','DELETE',()=>{},{});
 
-describe('setAsRouteOf method', () => {
+describe.skip('setAsRouteOf method', () => {
   describe.each([
     [action1.path,'orders-controller', action1, 'api/orders' ],
     [action2.path,'workers-controller', action2, 'api/workers'],
@@ -26,7 +26,7 @@ describe('setAsRouteOf method', () => {
 });
 
 // asRegistrationResult test
-describe('asRegistrationResult method', () => {
+describe.skip('asRegistrationResult method', () => {
   test('should return expected object when action registered successfully', () => {
     expect(action1.asRegistrationResult()).toEqual({
       route: '/api/orders/count',

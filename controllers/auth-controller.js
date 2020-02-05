@@ -38,12 +38,12 @@ const AuthController = function(/*AuthService class*/ authService) {
   });
 
   this.login = new Action('/login','POST', function ( req, res ){
-    const { Username, Password } = req.body;
+    const { Username, Password } = req.body;    
     service.isLoginDataValid( Username, Password ).then((isValid)=>{
-      if(isValid){
+      if (isValid) {
         return res.status(200).json('Logged in!');
       }
-      else{
+      else {
         return res.status(200).json('Invalid Username || Password...');
       }  
     }).catch((err) => {
@@ -52,19 +52,19 @@ const AuthController = function(/*AuthService class*/ authService) {
     }); 
   });
 
-  this.login = new Action('/login','POST', function ( req, res ) {
-    Passport.authenticate('local',{
-      successRedirect: "/login/success",
-      failureRedirect: "/login/error",
-      failureFlash: true
-    });
-  });
+  // this.login = new Action('/login','POST', function ( req, res ) {
+  //   Passport.authenticate('local',{
+  //     successRedirect: "/login/success",
+  //     failureRedirect: "/login/error",
+  //     failureFlash: true
+  //   });
+  // });
 
   this.loginFailed = new Action('/login/error', 'GET', function ( req, res ) {
     return res.json('Invalid Username || Password...');
   })
 
-  this.loginFailed = new Action('/login/success', 'GET', function ( req, res ) {
+  this.loginSuccess = new Action('/login/success', 'GET', function ( req, res ) {
     return res.json('Logged in!');
   })
 

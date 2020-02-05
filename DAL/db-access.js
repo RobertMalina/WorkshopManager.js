@@ -45,7 +45,7 @@ const DbAccess = function() {
     this.run(query,columnDatas);
   }
 
-  this.run = function(sqlStatement, columnDatas){
+  this.run = function(sqlStatement, columnDatas) {
     
     return new Promise(function(resolve, reject) {
       const connSettings = dbConnectData.dbDynamic(this.target || "-dev");

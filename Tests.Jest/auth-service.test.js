@@ -7,7 +7,7 @@ beforeAll(() => {
   service = new AuthService();
 });
 
-test('Should return instance of AppUser', (done)=>{
+test.skip('Should return instance of AppUser', (done)=>{
   const postData = {
     Password: 'zaqwsx12',
     Username: 'New User'
@@ -21,7 +21,7 @@ test('Should return instance of AppUser', (done)=>{
   }); 
 });
 
-test('Should have PasswordHash property initialized', (done)=>{
+test.skip('Should have PasswordHash property initialized', (done)=>{
   const postData = {
     Password: 'zaqwsx12',
     Username: 'New User'

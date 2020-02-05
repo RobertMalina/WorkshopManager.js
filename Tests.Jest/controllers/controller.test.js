@@ -4,7 +4,7 @@ const ClientController = require('../../controllers/client-controller');
 const Controller = require('../../controllers/base/controller');
 const { Action } = require('../../controllers/base/action');
 
-describe('routes root part pluralization', () => {
+describe.skip('routes root part pluralization', () => {
 
   let ordersController, rootPart;
 
@@ -24,7 +24,7 @@ describe('routes root part pluralization', () => {
   });
 });
 
-describe('actions gathering: ', () => {
+describe.skip('actions gathering: ', () => {
 
   test('abstract controller should have 0 actions', () => {
     const abstractController = new Controller({}),
@@ -42,7 +42,7 @@ describe('actions gathering: ', () => {
     expect(actionsCount).toEqual(3);
   });
 
-  describe.each([
+  describe.skip.each([
     ['workers-controller'],
     ['client-controller'],
     ['orders-controller']

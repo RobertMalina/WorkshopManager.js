@@ -12,7 +12,7 @@ beforeEach(()=>{
   user = new AppUser();
 });
 
-describe('AppUser EntityModel tests',()=>{
+describe.skip('AppUser EntityModel tests',()=>{
 
   test('EntityModel should return false if property name is not valid.',()=>{  
     const result = user.set("WrongProperty",32);
@@ -42,7 +42,7 @@ describe('AppUser EntityModel tests',()=>{
   });
 });
 
-describe('mssql-module insert-query parser tests', ()=> {
+describe.skip('mssql-module insert-query parser tests', ()=> {
   
   let query;
 
