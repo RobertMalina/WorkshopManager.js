@@ -10,6 +10,10 @@ const AuthService = function() {
 
   const saltingRounds = 12;
 
+  const isString = function(val){
+    return typeof val === 'string';
+  }
+
   this.secure = function(server) {
 
     server.use(Passport.initialize());
@@ -64,7 +68,6 @@ const AuthService = function() {
     };
   };
 
-
   this.createVirtualUser = function(userData){   
     const user = new AppUser();  
     if(!user.isValid(userData))
@@ -92,10 +95,15 @@ const AuthService = function() {
   };
 
   this.getAppUser = function(/*id or username*/identifier){
-    let idField = isString(identifier) ? `'Username'` : 'Id';
+    let wherePart = isString(identifier) ?
+     `[Username] LIKE '%${identifier}%'`:
+     `Id = ${identifier}`
 
+     const query = `select top 1 * from [AppUser] where ${wherePart}`;
+     console.log(query);
+     
     return new Promise((resolve, reject) => {
-      db.run(`select top 1 * from [AppUser] where ${idField} = ${identifier}`)
+      db.run(query)
       .then((read) => {
         if(read.recordset.length < 1){
           return null;
@@ -113,12 +121,28 @@ const AuthService = function() {
 
   this.isLoginDataValid = function(username, password){
     return this.getAppUser(username).then((user)=>{
-      if(!user){
+      if(!user) {
         console.warn(`user with username: ${user} not found`)
         return false;
       }
       return BCrypt.compare(password, user.get('PasswordHash'));
     })
+  };
+
+  this.JWT = {
+    verifyJWToken :  () => {
+      return new Promise((resolve, reject) =>
+      {
+        jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => 
+        {
+          if (err || !decodedToken)
+          {
+            return reject(err)
+          }
+          resolve(decodedToken)
+        });
+      });
+    }
   };
 
 };
