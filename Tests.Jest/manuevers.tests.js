@@ -2,7 +2,7 @@ const { applyReduce, isIsogram, findStandOff, persistence } = require('../manuev
 applyReduce();
 
 // przestrzeń 
-describe('reduce method should return', ()=> {
+describe.skip('reduce method should return', ()=> {
   test('5 when [ 1,2,2 ] passed as arg', ()=> {
     expect([ 1,2,2 ]
       .reduceV2( (acc, curr, i) => acc + curr, 0 ) )
