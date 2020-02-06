@@ -67,11 +67,12 @@ const AuthProvider = function (config) {
    defaults.loginFailedHandler;
 
   this.activateOn = (server /*AppServer*/) => {
-    //if(!server instanceof AppServer) { //TODO weryfikacja
-    if(!server)
-      console.error('server object has invalid type or not provided...');
-      return;
-      server.authenticate = authHandler;
+      //if(!server instanceof AppServer) { //TODO weryfikacja
+      if(!server){
+        console.error('server object has invalid type or not provided...');
+        return;
+      }
+      server.setAuthenticateRoutine(authHandler);
     } 
 }
 

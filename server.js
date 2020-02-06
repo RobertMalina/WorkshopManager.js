@@ -25,7 +25,7 @@ const AppServer = function(/* {
   this.enableAuthentication = (providerKey /*:string*/) => {
     if (this.authService !== null) {
       this.authService.setAuthentication({
-        target: server,
+        target: this,
         provider: providerKey
       });
       return true;
@@ -93,9 +93,14 @@ const AppServer = function(/* {
     next();
   };
 
-  this.authenticate = function(req, res, next) {
+  authenticate = function(req, res, next) {
     authHandlerStub(req, res, next);
   };
+
+  //debug
+  this.setAuthenticateRoutine = (func) => {
+    authenticate = func;
+  }
 
   this.enableCORS = function(options) {
     options = options || {};
@@ -127,7 +132,7 @@ const AppServer = function(/* {
         let action = actions[key];
         if (checkAction(action).isOk) {
           if (action.authRequired) {
-            server.use(action.route, this.authenticate);
+            server.use(action.route, authenticate);
           }
           action.httpVerb = action.httpVerb.toUpperCase();
           switch (action.httpVerb) {

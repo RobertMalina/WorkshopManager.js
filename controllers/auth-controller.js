@@ -46,10 +46,10 @@ const AuthController = function(/*AuthService class*/ authService) {
         if (usersSystemCheck.user && usersSystemCheck.result) {
 
           service.authProvider()
-            .onUserSystemSuccess(res, usersSystemCheck.user );
+            .onUserSystemSuccess(res, usersSystemCheck.user);
 
           return service.authProvider()
-            .loginSuccessHandler(res);
+            .loginSuccessHandler(res, usersSystemCheck.user);
         }
         else if(usersSystemCheck.isError) {
             return errorHandler({
