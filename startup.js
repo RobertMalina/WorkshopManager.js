@@ -8,13 +8,15 @@ const OrderService = require('./services/order-service');
 const WorkerController = require('./controllers/workers-controller');
 const WorkerService = require('./services/workers-service');
 const ClientService = require('./services/client-service');
-const AuthService = require('./services/auth-service');
+const AuthService = require('./services/auth/auth-service');
 
 const authService = new AuthService();
 const server = new AppServer();
 
 //włączenie uwierzytelniania dostępu do api
 //authService.secure(server.getInstance());
+
+//authService.JWT.activateOn(server.getInstance());
 
 server.enableJSONBodyParsing();
 

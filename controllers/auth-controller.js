@@ -39,12 +39,12 @@ const AuthController = function(/*AuthService class*/ authService) {
 
   this.login = new Action('/login','POST', function ( req, res ){
     const { Username, Password } = req.body;    
-    service.isLoginDataValid( Username, Password ).then((isValid)=>{
+    service.findAndVerify( Username, Password ).then((isValid) => {
       if (isValid) {
-        return res.status(200).json('Logged in!');
+        return service.authSuccessResponse(res);
       }
       else {
-        return res.status(200).json('Invalid Username || Password...');
+        return service.authFailedResponse(res);
       }  
     }).catch((err) => {
        console.error(err); 

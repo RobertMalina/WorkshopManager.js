@@ -1,10 +1,10 @@
-const AuthService = require('../services/auth-service');
+const AuthService = require('../services/auth/auth-service');
 const AppUser = require('../DAL/AuthModels/AppUser');
 
 let service;
 
 beforeAll(() => {
-  service = new AuthService();
+  service = new s();
 });
 
 test.skip('Should return instance of AppUser', (done)=>{
