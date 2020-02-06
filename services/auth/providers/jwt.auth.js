@@ -8,7 +8,7 @@ const JWTAuthProvider = function(options) {
 
   this.maxAge = options.maxAge || 3600; // in seconds
 
-  verify = () => {
+  verify = (token) => {
     return new Promise((resolve, reject) =>
     {
       jwt.verify(token, jwtSecret, (err, decodedToken) => 
@@ -53,18 +53,18 @@ const JWTAuthProvider = function(options) {
   };
 
   this.authHandler = (req, res, next) => {
-
-    console.log('JWT authentication');   
-
     let token = (req.method === 'POST') ? req.body.token : req.query.token
-    this.verify(token)
+    
+    verify(token)
       .then((decodedToken) =>
       {
-        req.user = decodedToken.data
+        req.user = decodedToken.data;
+        onAccessAllowed();
         next();
       })
       .catch((err) =>
-      {
+      {       
+        onAccessDenied(err); 
         res.status(400)
           .json({message: "Invalid auth token provided."})
       })
@@ -83,7 +83,26 @@ const JWTAuthProvider = function(options) {
     });
   }
 
-  this.logInSuccessHandler = (res) => {
+  const onAccessAllowed = (user /*: { username: string, ... }*/) => {
+    if(user){
+      console.log(`JWT authentication succeeded for user: ${user.username}`); 
+    }
+    else{
+      console.log('JWT authentication succeeded');  
+    }
+  };
+  const onAccessDenied = (err) => {
+    console.warn(err);
+    console.log('JWT authentication failed');  
+  };
+
+  this.logInSuccessHandler = (res, user) => {
+    if(user && user instanceof AppUser) {
+      console.log(`JWT: user: ${user.get('Username')} successfully logged in (${Date.now})`); 
+    }
+    else{
+      console.log(`JWT: successfully log-in detected ${Date.now}`); 
+    }
     return res.status(200);
   };
 
