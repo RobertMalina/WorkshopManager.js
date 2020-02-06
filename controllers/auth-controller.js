@@ -13,60 +13,57 @@ const AuthController = function(/*AuthService class*/ authService) {
   const service = authService;
 
   this.register = new Action('/register','POST', function ( req, res ){
-    service.registerAppUser(req.body).then(()=>{
+    service.usersSystemApi.register(req.body).then(()=>{
         return res.status(200).json('1 row affected');
     }).catch((err) => {
        console.error(err); 
-       errorHandler(err); 
+       errorHandler(err, req, res); 
     }); 
   },{
     authRequired: true, roles: ['admin']
   });
 
   this.register = new Action('/receive/bcrypted','POST', function ( req, res ){
-    service.createVirtualUser(req.body).then((user) => {      
-        return res.status(200).json({
-          PasswordHash: user.get("PasswordHash"),
-          Username: user.get("Username")
-        });
-    }).catch((err) => {
-       console.error(err); 
-       errorHandler(err);
-    }); 
+    service.usersSystemApi.createAppUserInstance(req.body)
+      .then((user) => {      
+          return res.status(200).json({
+            PasswordHash: user.get("PasswordHash"),
+            Username: user.get("Username")
+          });
+      }).catch((err) => {
+        console.error(err); 
+        errorHandler(err, req, res);
+      });
   },{
     authRequired: true, roles: ['admin']
   });
 
-  this.login = new Action('/login','POST', function ( req, res ){
-    const { Username, Password } = req.body;    
-    service.findAndVerify( Username, Password ).then((isValid) => {
-      if (isValid) {
-        return service.authSuccessResponse(res);
-      }
-      else {
-        return service.authFailedResponse(res);
-      }  
-    }).catch((err) => {
-       console.error(err); 
-       errorHandler(err);
-    }); 
+  this.login = new Action('/login','POST', function ( req, res ) {
+    const { Username, Password } = req.body;
+    
+    service.usersSystemApi.verify( Username, Password )
+      .then((usersSystemCheck) => {
+        if (usersSystemCheck.user && usersSystemCheck.result) {
+
+          service.authProvider()
+            .onUserSystemSuccess(res, usersSystemCheck.user );
+
+          return service.authProvider()
+            .loginSuccessHandler(res);
+        }
+        else if(usersSystemCheck.isError) {
+            return errorHandler({
+              response: {},
+              message: 'Internal server error'
+            }, req, res);
+        }
+        else {
+          return service.authProvider().loginFailedHandler(res);
+        }
+        }).catch((err) => {
+          console.error(err); 
+          return errorHandler(err, req, res);
+      }); 
   });
-
-  // this.login = new Action('/login','POST', function ( req, res ) {
-  //   Passport.authenticate('local',{
-  //     successRedirect: "/login/success",
-  //     failureRedirect: "/login/error",
-  //     failureFlash: true
-  //   });
-  // });
-
-  this.loginFailed = new Action('/login/error', 'GET', function ( req, res ) {
-    return res.json('Invalid Username || Password...');
-  })
-
-  this.loginSuccess = new Action('/login/success', 'GET', function ( req, res ) {
-    return res.json('Logged in!');
-  })
-
 }
 module.exports = AuthController;

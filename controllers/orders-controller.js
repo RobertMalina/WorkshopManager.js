@@ -65,7 +65,8 @@ const OrderController = function(/*OrderService class*/ orderService) {
       .catch( err => {
         errorHandler(err);
       });;
-    }
+    },
+    { authRequired: true, roles: ['admin'] }
   );
 
   this.getOrdersForPage = new Action('', 'POST',  

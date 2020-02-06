@@ -16,6 +16,8 @@ const {
   DEV_DB_NAME___NEW,
   DEV_SQLSERVER_IP_ADDR___NEW,
 
+  JWT_SECRET
+
 } = process.env;
 
 assert( DEV_SQLSERVER_USERNAME, "You must set DEV_SQLSERVER_USERNAME in your local .env file." );
@@ -23,13 +25,14 @@ assert( DEV_SQLSERVER_USERPSWD, "You must set DEV_SQLSERVER_USERPSWD in your loc
 assert( DEV_SQLSERVER_IP_ADDR, "You must set DEV_SQLSERVER_IP_ADDR in your local .env file." );
 assert( DEV_DB_NAME, "You must set DEV_DB_NAME in your local .env file." );
 
+//assert( JWT_SECRET, "You must set JWT_SECRET in your local .env file (authorization purposes)." );
+
+
 if(process.env.DEV_DB_NAME___NEW){
   console.log('db name was changed');
   DEV_DB_NAME = process.env.DEV_DB_NAME___NEW;
 }
-else{
-  console.log('not changed');
-}
+
 
 function getConnectionSettings (/*string [-dev || -test]*/ dbDest) {
     const newDbName = process.env.DEV_DB_NAME___NEW,
@@ -71,5 +74,6 @@ module.exports = {
       min: 10,
       idleTimeoutMillis: 3000
     }
-  }
+  },
+  jwtSecret: JWT_SECRET,
 }

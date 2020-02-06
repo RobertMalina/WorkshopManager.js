@@ -1,22 +1,22 @@
 const AppServer = require('./server');
 
-const OrderController = require('./controllers/orders-controller');
-const AuthController = require('./controllers/auth-controller');
-const AppController = require('./controllers/app-controller');
-const ClientController = require('./controllers/client-controller');
-const OrderService = require('./services/order-service');
-const WorkerController = require('./controllers/workers-controller');
-const WorkerService = require('./services/workers-service');
-const ClientService = require('./services/client-service');
-const AuthService = require('./services/auth/auth-service');
+const { OrderController, AuthController, ClientController, WorkerController, AppController }
+ = require('./controllers/controllers.index');
+const { OrderService, WorkerService, ClientService, AuthService  }
+ = require('./services/services.index');
 
 const authService = new AuthService();
-const server = new AppServer();
+const authController = new AuthController(authService);
+const server = new AppServer ({
+  authService: authService,
+  port: '4210'
+});
 
 //włączenie uwierzytelniania dostępu do api
-//authService.secure(server.getInstance());
-
-//authService.JWT.activateOn(server.getInstance());
+// opcja oparta o Json Web Tokens
+server.enableAuthentication('JWT');
+// lub Passport-local:
+//server.enableAuthentication('Passport-local');
 
 server.enableJSONBodyParsing();
 
@@ -27,7 +27,7 @@ server.enableJSONBodyParsing();
 server.enableCORS();
 
 const endpoints = [
-  new AuthController(authService),
+  authController,
   new OrderController(new OrderService()),
   new ClientController(new ClientService()),
   new WorkerController(new WorkerService()),

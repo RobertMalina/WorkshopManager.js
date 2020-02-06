@@ -1,17 +1,40 @@
 const Controller = require('./controllers/base/controller');
 const { checkAction, Action } = require('./controllers/base/action');
+const CORS = require('cors');
+const express = require('express');
+const path = require('path');
+const { AuthService } = require('./services/services.index');
 
-const AppServer = function() {
-  const express = require('express');
-  const path = require('path');
-  const routeTable = {};
+const AppServer = function(/* { 
+  port?: string, 
+  authService?: AuthService
+}*/config) {
+
+  config = config || {};
+
   const server = express();
-  const CORS = require('cors');
-  this.port = null;
-
-  this.getInstance = function(){
-    return server;
+  this.port = config.port || '4210';
+  if(!config.authService instanceof AuthService) {
+    console.error('Received AuthService object has wrong type...');
+    this.authService = null;
   }
+  else {
+    this.authService = config.authService || null;
+  }
+
+  this.enableAuthentication = (providerKey /*:string*/) => {
+    if (this.authService !== null) {
+      this.authService.setAuthentication({
+        target: server,
+        provider: providerKey
+      });
+      return true;
+    }
+    else {
+      console.error('AuthService is not provided to this instance of AppServer!');
+      return false;
+    }
+  };
 
   const onInit = function() {
     server.use(express.static(path.join(__dirname, 'public')));
@@ -64,14 +87,23 @@ const AppServer = function() {
     return func && {}.toString.call(func) === '[object Function]';
   };
 
-  this.authenticate = function(req, res, next) {
+  //@to override
+  authHandlerStub = (req, res, next) => {
+    console.warn('Action that required authentication is invoked, but there is no auth-provider provided (default fake-provider is used)...')
     next();
   };
 
-  this.enableCORS = function() {
+  this.authenticate = function(req, res, next) {
+    authHandlerStub(req, res, next);
+  };
+
+  this.enableCORS = function(options) {
+    options = options || {};
     server.use(CORS());
     server.use((req, res, next) => {
-      console.log(`Access-Control-Allow-Origin headers added to incoming request...`);
+      if(options.verbose){
+        console.log(`Request processed in CORS aware mode`);
+      }   
       res.header("Access-Control-Allow-Origin", "*");
       res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
