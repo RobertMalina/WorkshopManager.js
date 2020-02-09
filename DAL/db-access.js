@@ -30,7 +30,7 @@ const DbAccess = function() {
 
     for(const key in modelMap){
       let propSettings = modelMap[key];
-      if(!propSettings.autoIncrement){
+      if(!propSettings.autoIncrement || propSettings.skipInsert){
         let argName = key.toLowerCase();
         columnDatas.push({
           argName: argName,

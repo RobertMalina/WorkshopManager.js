@@ -4,11 +4,14 @@ const { AuthProvider, PassportLocalAuthProvider, JWTAuthProvider } = require('./
 const { isString } = require('../../shared/tools');
 const AppUser = require('../../DAL/AuthModels/AppUser');
 const AppServer = require('../../server');
-
+const QueryStore = require('../../DAL/query-store');
+const { asEntites } = require('../../DAL/Models/entity')
 
 const AuthService = function() {
   
   const db = new DbAccess();
+
+  const queryStore = new QueryStore();
 
   let authProvider = null;
 
@@ -45,6 +48,26 @@ const AuthService = function() {
       }
   };
 
+  const getRoles = (userId /*number*/) => {
+    return new Promise((resolve, reject) => {
+      db.run(queryStore.get('selectRolesOfUserWithId', { userId: userId }))
+      .then((response) => {   
+        if(!response.recordset){
+          reject(`User (id:${userId}) does not have any roles...`);
+        }
+        else if(response.recordset.length > 0){
+          const entities = asEntites(response.recordset,{});
+          resolve(entities);
+        }
+        else {
+          resolve(null);
+        }
+      })
+      .catch((error)=> {
+        reject(error);
+      });
+    });
+  }
 
   this.usersSystemApi = {
 
@@ -60,17 +83,30 @@ const AuthService = function() {
      return new Promise((resolve, reject) => {
        db.run(query)
        .then((read) => {
-         if(read.recordset.length < 1){
-           resolve(null);
+          if(!read.recordset.length < 1) { 
+            const user = new AppUser();
+            user.set('Id', read.recordset[0].Id);
+            user.set('Username', read.recordset[0].Username);
+            user.set('PasswordHash',read.recordset[0].PasswordHash);
+            console.log(user.getModelMap());
+
+            getRoles(user.get('Id')).then(roles => {
+              if(roles) {
+                console.log(roles);    
+                const roleNames = roles.map(r => r.roleName);
+                user.set('Roles', roleNames);
+                resolve(user);
+              } else {
+                reject('error during roles fetching')
+              }
+            }).catch(err => { reject(err)}); 
+
          }
-         else{
-           const user = new AppUser();
-           user.set('Id', read.recordset[0].Id);
-           user.set('Username', read.recordset[0].Username);
-           user.set('PasswordHash',read.recordset[0].PasswordHash);
-           resolve(user);
+         else {
+            resolve(null);
          }
-       }).catch(err => { reject(err)});    
+       })
+       .catch(err => { reject(err)});    
      });
     },
 
@@ -100,7 +136,7 @@ const AuthService = function() {
       }).catch((err) => { console.error(err); });
     },
 
-    verify: function(username, password) {  /*: Promise<{ user: AppUser, result: boolean, isError?: boolean}> */ 
+    checkCredentials: function(username, password) {  /*: Promise<{ user: AppUser, result: boolean, isError?: boolean}> */ 
       return this.get(username).then((user) => {
         if(!user) {
           return {

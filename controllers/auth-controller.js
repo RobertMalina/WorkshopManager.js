@@ -41,7 +41,7 @@ const AuthController = function(/*AuthService class*/ authService) {
   this.login = new Action('/login','POST', function ( req, res ) {
     const { Username, Password } = req.body;
     
-    service.usersSystemApi.verify( Username, Password )
+    service.usersSystemApi.checkCredentials( Username, Password )
       .then((usersSystemCheck) => {
         if (usersSystemCheck.user && usersSystemCheck.result) {
 

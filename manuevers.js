@@ -13,14 +13,6 @@ const applyReduce = function() {
 
 }
 
-
-
-
-
-
-
-
-
 const isIsogram = function(arg){
   if (typeof arg !== 'string'){
     return null;

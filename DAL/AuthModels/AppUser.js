@@ -14,6 +14,10 @@ const AppUser = function(){
     'PasswordHash': {
       type: sql.NVarChar(64),
       value: ''
+    },
+    'Roles': {
+      skipInsert: true,
+      value: []
     }
   }
 
@@ -37,7 +41,13 @@ const AppUser = function(){
       return false;
     }
     const property = properties[propName];
-    property.value = propValue;
+
+    if(Array.isArray(property.value) && !Array.isArray(propValue)){
+      console.error(`Invalid property type - should be array... (is: ${typeof propValue})`);
+      return false;
+    }
+    
+    property.value = propValue;    
     return true;
   }
 

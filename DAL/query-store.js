@@ -1,5 +1,13 @@
 const QueryStore = function () {
   const sqlQueries = {
+    //[AppRole]
+    selectRolesOfUserWithId: function(args) {
+      if(!args.userId){
+        console.error('Parametr userId jest wymagany!');
+        return '';
+      }
+      return `SELECT * FROM [dbo].[GetRolesOfUserWithId](${args.userId})`;
+    },
     //[Order]
     selectOrderWithId: function(args) {
       if(!args.id){

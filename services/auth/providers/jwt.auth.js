@@ -79,7 +79,9 @@ const JWTAuthProvider = function(options) {
           maxAge: this.maxAge
         }),
       username: user instanceof AppUser ? 
-        user.get('Username') : '?'
+        user.get('Username') : '?',
+      roles: user instanceof AppUser ? 
+        user.get('Roles') : []
     });
   }
 
