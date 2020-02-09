@@ -100,10 +100,10 @@ const JWTAuthProvider = function(options) {
 
   this.logInSuccessHandler = (res, user) => {
     if(user && user instanceof AppUser) {
-      console.log(`JWT: user: ${user.get('Username')} successfully logged in (${Date.now})`); 
+      console.log(`JWT: user: ${user.get('Username')} successfully logged in (${new Date().toISOString()})`); 
     }
     else{
-      console.log(`JWT: successfully log-in detected ${Date.now}`); 
+      console.log(`JWT: successfully log-in detected ${new Date().toISOString()}`); 
     }
     return res.status(200);
   };
