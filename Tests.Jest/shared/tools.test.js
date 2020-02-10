@@ -1,6 +1,6 @@
 const { reduceObj } = require('../../shared/tools');
 
-describe('reduceObj should return', ()=> {
+describe.skip('reduceObj should return', ()=> {
 
   const payload = {
     password: 'zaq123wsx',
@@ -31,7 +31,5 @@ describe('reduceObj should return', ()=> {
   test('object without password property', () => {
     expect(received.password).toBeFalsy();
   });
-  
-  console.log(received);
-  
+
 });

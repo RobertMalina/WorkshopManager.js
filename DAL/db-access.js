@@ -12,7 +12,7 @@ const DbAccess = function() {
   })
 
   const isEntityModelValid = function (entityModel) {   
-    if(!entityModel.hasOwnProperty("getModelMap")){
+    if(!entityModel.hasOwnProperty("properties")){
       console.error('Passed object does not implement required features of entityModel ...');
       return false;
     }
@@ -24,12 +24,12 @@ const DbAccess = function() {
       return false;
     }
 
-    const modelMap = entityModel.getModelMap();
+    const properties = entityModel.properties;
     const request = new sql.Request();
     const columnDatas = [];
 
-    for(const key in modelMap){
-      let propSettings = modelMap[key];
+    for(const key in properties){
+      let propSettings = properties[key];
       if(!propSettings.autoIncrement || propSettings.skipInsert){
         let argName = key.toLowerCase();
         columnDatas.push({

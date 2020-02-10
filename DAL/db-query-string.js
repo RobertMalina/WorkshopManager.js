@@ -45,9 +45,8 @@ const QueryString = function (dbSchema) {
   }
 
   this.asInsertFor = function (entityModel) {
-    const modelMap = entityModel.getModelMap();
     const tableName = entityModel.constructor.name;
-    const params = getModelParams(modelMap);
+    const params = getModelParams(entityModel.properties);
     return insertQueryStringFor(this.dbSchema, tableName, params);
   }
 };

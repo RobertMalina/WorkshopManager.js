@@ -88,7 +88,7 @@ const AuthService = function() {
             user.set('Id', read.recordset[0].Id);
             user.set('Username', read.recordset[0].Username);
             user.set('PasswordHash',read.recordset[0].PasswordHash);
-            console.log(user.getModelMap());
+            console.log(user.properties);
 
             getRoles(user.get('Id')).then(roles => {
               if(roles) {
@@ -110,18 +110,21 @@ const AuthService = function() {
      });
     },
 
-    createAppUserInstance: function(/* { Username: string, Password: string }*/ userData)/*: Promise<AppUser?> */{
-      const user = new AppUser(); 
+    createAppUserInstance: function(
+      userData
+      /* { username: string, password: string, roles: string[] }*/ 
+      )/*: Promise<AppUser?> */{
+      const user = new AppUser();
       if(!user.isValid(userData))
       {
         console.error('Post body does not conform to registration model...');
         return null;
       }
-      const { Username, Password } = userData;
+      const { username, password, roles } = userData;
       return new Promise((resolve, reject) => {     
         BCrypt.genSalt(this.saltingRounds).then((salt) => {
-          BCrypt.hash(Password, salt).then((passwordHash)=>{
-            user.set('Username', Username);
+          BCrypt.hash(password, salt).then((passwordHash)=>{
+            user.set('Username', username);
             user.set('PasswordHash', passwordHash);         
             resolve(user);
           }).catch((err) => reject(err));
@@ -130,8 +133,10 @@ const AuthService = function() {
       }); 
     },
 
-    register: function()  /*: Promise<Any> */ {
-      return this.createVirtualUser(userData).then((appUser)=>{
+    register: function(userData
+    /* { username: string, password: string, roles: string[] }*/ 
+    )  /*: Promise<Any> */ {
+      return this.createAppUserInstance(userData).then((appUser)=>{
         return db.insert(appUser);
       }).catch((err) => { console.error(err); });
     },

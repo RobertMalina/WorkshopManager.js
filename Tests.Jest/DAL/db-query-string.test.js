@@ -23,8 +23,7 @@ describe.skip('AppUser EntityModel tests',()=>{
     user.set('Username','George Patton');
     user.set('PasswordHash','2d928568ce17d1485f6d2c48bce9af5648c59dea');
     user.set('NotExistingProp', Date.now );
-    const properties = user.getModelMap();
-    expect(properties).toEqual({
+    expect(user.properties).toEqual({
       'Id':{
         type: Sql.BigInt,
         value: '',

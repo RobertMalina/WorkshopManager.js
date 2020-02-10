@@ -1,4 +1,5 @@
 const sql = require('mssql');
+const Model = require('../Models/model');
 
 const AppUser = function(){
   const properties = {
@@ -20,44 +21,7 @@ const AppUser = function(){
       value: []
     }
   }
-
-  this.isValid = function(body){   
-    if(!body.hasOwnProperty('Password')){
-      return false;
-    }
-    if(!body.hasOwnProperty('Username')){
-      return false;
-    }
-    return true;
-  }
-
-  this.getModelMap = function(){
-    return properties;
-  }
-
-  this.set = function(propName, propValue) {
-    if(!properties.hasOwnProperty(propName)){
-      console.error(`Invalid property name ${propName}`);
-      return false;
-    }
-    const property = properties[propName];
-
-    if(Array.isArray(property.value) && !Array.isArray(propValue)){
-      console.error(`Invalid property type - should be array... (is: ${typeof propValue})`);
-      return false;
-    }
-    
-    property.value = propValue;    
-    return true;
-  }
-
-  this.get = function(propName) {
-    if(!properties.hasOwnProperty(propName)){
-      console.error(`Invalid property name ${propName}`);
-      return false;
-    }
-    return properties[propName].value;
-  }
+  Model.call(this, properties );
 }
 
 module.exports = AppUser;
