@@ -19,7 +19,9 @@ const WorkersService = function() {
           }])
           .then((response) => {     
           resolve({
-            mechanicians: asEntites(response.recordset)
+            mechanicians: asEntites(response, {
+              modelsName: 'mechanicians'
+            })
           });
       }).catch(err => {
         reject(err);
@@ -43,7 +45,7 @@ const WorkersService = function() {
             if(response.recordset) {
               resolve({
                 orderId: ordersIds[i],
-                mechanicians: asEntites(response.recordset)
+                mechanicians: asEntites(response)
               });
             }
           })

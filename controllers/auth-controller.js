@@ -23,7 +23,18 @@ const AuthController = function(/*AuthService class*/ authService) {
     authRequired: true, roles: ['admin']
   });
 
-  this.register = new Action('/receive/bcrypted','POST', function ( req, res ){
+  this.checkRoles = new Action('/roles/check','POST', function ( req, res ) {
+    const { roleNames } = req.body;
+    service.roleService.verifyRolenames(roleNames)
+      .then((response) => {      
+          return res.status(200).json(response);
+      }).catch((err) => {
+        console.error(err); 
+        errorHandler(err, req, res);
+      });
+  });
+
+  this.register = new Action('/receive/bcrypted','POST', function ( req, res ) {
     service.usersSystemApi.createAppUserInstance(req.body)
       .then((user) => {      
           return res.status(200).json({

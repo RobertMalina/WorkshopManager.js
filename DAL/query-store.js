@@ -1,8 +1,22 @@
 const QueryStore = function () {
   const sqlQueries = {
     //[AppRole]
+    selectRolesByNames: function(args) {
+      if(!Array.isArray(args.roleNames)) {
+        console.error('Parametr roleNames musi być tablicą string');
+        return '';
+      }
+
+      const assertUnique = new Set(args.roleNames);
+      const roleQueries = [];
+
+      assertUnique.forEach(roleName => {
+        roleQueries.push(`SELECT  r.[Id] as 'id', r.[Name] as 'name' FROM [dbo].[AppRole] r WHERE r.[Name] = '${roleName}';`) ;
+      });
+      return roleQueries.join('\n');
+    },
     selectRolesOfUserWithId: function(args) {
-      if(!args.userId){
+      if(!args.userId) {
         console.error('Parametr userId jest wymagany!');
         return '';
       }

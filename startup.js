@@ -2,8 +2,10 @@ const AppServer = require('./server');
 
 const { OrderController, AuthController, ClientController, WorkerController, AppController }
  = require('./controllers/controllers.index');
-const { OrderService, WorkerService, ClientService, AuthService  }
+const { OrderService, WorkerService, ClientService, AuthService, RoleService  }
  = require('./services/services.index');
+
+ //const roleService = new RoleService();
 
 const authService = new AuthService();
 const authController = new AuthController(authService);

@@ -5,11 +5,16 @@ const { isString } = require('../../shared/tools');
 const AppUser = require('../../DAL/AuthModels/AppUser');
 const AppServer = require('../../server');
 const QueryStore = require('../../DAL/query-store');
-const { asEntites } = require('../../DAL/Models/entity')
+const { asEntites } = require('../../DAL/Models/entity');
+const RoleService  = require('../auth/role-service');
 
 const AuthService = function() {
   
   const db = new DbAccess();
+
+  this.roleService = new RoleService({
+    dbAccess: db
+  });
 
   const queryStore = new QueryStore();
 
@@ -48,26 +53,7 @@ const AuthService = function() {
       }
   };
 
-  const getRoles = (userId /*number*/) => {
-    return new Promise((resolve, reject) => {
-      db.run(queryStore.get('selectRolesOfUserWithId', { userId: userId }))
-      .then((response) => {   
-        if(!response.recordset){
-          reject(`User (id:${userId}) does not have any roles...`);
-        }
-        else if(response.recordset.length > 0){
-          const entities = asEntites(response.recordset,{});
-          resolve(entities);
-        }
-        else {
-          resolve(null);
-        }
-      })
-      .catch((error)=> {
-        reject(error);
-      });
-    });
-  }
+
 
   this.usersSystemApi = {
 
@@ -87,12 +73,11 @@ const AuthService = function() {
             const user = new AppUser();
             user.set('Id', read.recordset[0].Id);
             user.set('Username', read.recordset[0].Username);
-            user.set('PasswordHash',read.recordset[0].PasswordHash);
-            console.log(user.properties);
+            user.set('PasswordHash', read.recordset[0].PasswordHash);
 
-            getRoles(user.get('Id')).then(roles => {
+            this.roleService.getRolesOf(user.get('Id'))
+            .then(roles => {
               if(roles) {
-                console.log(roles);    
                 const roleNames = roles.map(r => r.roleName);
                 user.set('Roles', roleNames);
                 resolve(user);
@@ -110,12 +95,12 @@ const AuthService = function() {
      });
     },
 
-    createAppUserInstance: function(
+    createAppUserInstance: function (
       userData
       /* { username: string, password: string, roles: string[] }*/ 
       )/*: Promise<AppUser?> */{
       const user = new AppUser();
-      if(!user.isValid(userData))
+      if(!user.canAccept(userData))
       {
         console.error('Post body does not conform to registration model...');
         return null;
@@ -136,7 +121,8 @@ const AuthService = function() {
     register: function(userData
     /* { username: string, password: string, roles: string[] }*/ 
     )  /*: Promise<Any> */ {
-      return this.createAppUserInstance(userData).then((appUser)=>{
+      return this.createAppUserInstance(userData)
+      .then((appUser) => {
         return db.insert(appUser);
       }).catch((err) => { console.error(err); });
     },

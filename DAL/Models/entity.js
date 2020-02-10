@@ -45,24 +45,50 @@
     }
   }
 
- const asEntites = function (recordset /*odczyt z bazy*/, options) {
-    if(!recordset) {
-      console.error('Parametr recordset musi mieć wartość...');
+  const hoistFromMultiSelect = (recordsets /*: [ [ [Object] ], [ [Object] ] ] */) => {
+    const records = [];
+    recordsets.forEach(recordSet => {
+      records.push(recordSet);
+    });
+    return records;
+  }
+
+  const asEntites = function (dbResponse /*odczyt z bazy*/, options) {
+
+    // a) if rowsAffected contains array of N int's => take recordsets.forEach(a[] => acc.push(a[0])) as records
+    // b) if rowsAffected contains one int, (like: rowsAffected: [ 5 ]) => take recordset as "records:
+    // case a) when query includes paralell select's (NOT NESTED)
+    // case b) when single query (might contain many nested selects though)
+    
+    const records = dbResponse.rowsAffected.length > 1 ?
+      hoistFromMultiSelect(dbResponse.recordsets) :
+      dbResponse.recordset;
+      
+    if(!records) {
+      console.error('Bad read. Parameter "records" has no value...');
       return [];
     }
+
     options = options || {};
     if(!options.excludedColumns) {
       options.excludedColumns = [];
     }
 
-    const entititesArr = [];
+    const entities = [];
 
-    recordset.map((record) => {
+    records.map((record) => {
       let entity = new Entity(record, options.excludedColumns, 'kebab-case');
       entity.transform();
-      entititesArr.push(entity);
+      entities.push(entity);
     });
-    return entititesArr;
+
+    const response = {};
+
+    options.modelsName ? 
+      response[options.modelsName] = entities :
+      response = entities;
+
+    return response;
   }
 
   module.exports = {

@@ -17,11 +17,11 @@ const OrderService = function() {
           resolve(null);
         }
         else if(response.recordset.length > 0){
-          const entities = asEntites(response.recordset, 
+          resolve( asEntites(response, 
             { 
-              excludedColumns: ['description']
-            });
-          resolve(entities);
+              excludedColumns: ['description'],
+              modelsName: 'orders'
+            }));
         }
         else {
           resolve(null);
@@ -40,14 +40,12 @@ const OrderService = function() {
       archivedToo: archivedToo
     });
     return new Promise((resolve, reject) => {
-      db.run(query).then((response) => {
-        const entities = asEntites(response.recordset, 
-        {
-          excludedColumns: ['description']
-        });       
-        resolve({
-          orders: entities
-        });
+      db.run(query).then( (response) => {    
+        resolve( asEntites (response, 
+          {
+            excludedColumns: ['description'],
+            modelsName: 'orders'
+          }));
       }).catch(err => {
         reject(err);
       });
@@ -81,11 +79,11 @@ const OrderService = function() {
           resolve(null);
         }
         else if(response.recordset.length > 0){        
-          const entities = asEntites(response.recordset, 
+          resolve( asEntites(response, 
             { 
-              excludedColumns: ['id','decription']
-            });
-          resolve(entities);
+              excludedColumns: ['id','decription'],
+              modelsName: 'order',
+            }));
         }
         else {
           resolve(null);

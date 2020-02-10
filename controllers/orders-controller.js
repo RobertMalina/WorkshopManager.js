@@ -29,7 +29,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
           errorHandler(err);
         });
     },
-    { authRequired: true, roles: ['admin'] }
+    { authRequired: true, roles: ['regular'] }
   );
 
   this.getCount = new Action('/count', 'POST', 
@@ -44,11 +44,13 @@ const OrderController = function(/*OrderService class*/ orderService) {
           console.error(err);
           errorHandler(err);
         });
-    }
+    },
+    { authRequired: true, roles: ['regular'] }
   );
 
   this.ordersPagedListSet = new Action('/pagedListSet', 'POST',
     function (req, res) {
+      res.setHeader('Content-Type', 'application/json');
       const { page, itemsOnPage, archivedToo } = req.body;
       const response = {};
       service.fetchOrdersForPage(page, itemsOnPage, archivedToo)
@@ -64,26 +66,9 @@ const OrderController = function(/*OrderService class*/ orderService) {
       })
       .catch( err => {
         errorHandler(err);
-      });;
-    },
-    { authRequired: true, roles: ['admin'] }
-  );
-
-  this.getOrdersForPage = new Action('', 'POST',  
-    function( req, res ) {
-    const { page, itemsOnPage, archivedToo } = req.body;
-    res.setHeader('Content-Type', 'application/json');
-    service
-      .fetchOrdersForPage( page,itemsOnPage, archivedToo )
-      .then(response => {
-        return res.status(200).json(response);
-      })
-      .catch(err => {
-        console.error(err);
-        errorHandler(err);
       });
-  },
-  { authRequired: true, roles: ['admin'] }
+    },
+    { authRequired: true, roles: ['regular'] }
   );
 
   this.getOrder = new Action('/:id', 'GET', 
