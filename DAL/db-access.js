@@ -80,12 +80,9 @@ request.bulk(table, (err, result) => {
           });
   
           models.forEach(model => {
-            //model.insertRowInto(table);     
-            table.rows.add(model.get('UserId'), model.get('RoleId'))
+            model.insertRowInto(table);
           })
   
-          const connSettings = dbConnectData.dbDynamic(this.target || "-dev");
-         
           request.bulk(table,(err, result) => {
             if(err){
               reject(err);
