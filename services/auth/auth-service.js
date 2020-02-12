@@ -5,14 +5,14 @@ const { isString } = require('../../shared/tools');
 const AppUser = require('../../DAL/AuthModels/AppUser');
 const AppServer = require('../../server');
 const QueryStore = require('../../DAL/query-store');
-const { asEntites } = require('../../DAL/Models/entity');
+const { flatten, asModel } = require('../../DAL/Models/entity');
 const RoleService  = require('../auth/role-service');
 
 const AuthService = function() {
   
   const db = new DbAccess();
 
-  this.roleService = new RoleService({
+  const roleService = new RoleService({
     dbAccess: db
   });
 
@@ -40,7 +40,10 @@ const AuthService = function() {
             break;
           case 'JWT':
             authProvider = new JWTAuthProvider({maxAge: 3600});
-            break;    
+            break;
+          /*
+            register new provider here
+          */
           default:
             console.error(`Authorization provider ${config.provider} is not registered in AuthService.setAuthentication method...`);         
             return false;
@@ -53,109 +56,79 @@ const AuthService = function() {
       }
   };
 
-
-
   this.usersSystemApi = {
 
     saltingRounds: 12,
 
-    get: function(/*id or username*/identifier) /*: Promise<AppUser?> */ {
-      let wherePart = isString(identifier) ?
-      `[Username] LIKE '%${identifier}%'`:
-      `Id = ${identifier}`
- 
-      const query = `select top 1 * from [AppUser] where ${wherePart}`;
-      
+    getUser: function(/*id or username*/identifier, withRoles = false) /*: Promise<AppUser?> */ {    
      return new Promise((resolve, reject) => {
+      const query = queryStore.get('selectAppUser', { identifier: identifier });
        db.run(query)
-       .then((read) => {
-          if(!read.recordset.length < 1) { 
-            const user = new AppUser();
-            user.set('Id', read.recordset[0].Id);
-            user.set('Username', read.recordset[0].Username);
-            user.set('PasswordHash', read.recordset[0].PasswordHash);
-
-            this.roleService.getRolesOf(user.get('Id'))
-            .then(roles => {
-              if(roles) {
-                const roleNames = roles.map(r => r.roleName);
-                user.set('Roles', roleNames);
-                resolve(user);
-              } else {
-                reject('error during roles fetching')
-              }
-            }).catch(err => { reject(err)}); 
-
+       .then( read => {
+          if(!read.recordset.length < 1) {
+            const user = asModel( { dbRead:read, modelType: AppUser });
+            if( withRoles ) {
+              roleService.getRolesOf(user.get('Id'))
+              .then(roles => {
+                if(roles) {
+                  user.set('Roles', roles.map(r => r.roleName));
+                  resolve(user);
+                } else {
+                  reject(`can not fetch roles o user with id:${user.get('Id')}`)
+                }
+              }).catch(err => { reject(err)}); 
+            } else {
+              resolve(user);
+            }
          }
          else {
-            resolve(null);
+            resolve(`user with username: ${username}, could not be found...`);
          }
        })
        .catch(err => { reject(err)});    
      });
     },
 
-    createAppUserInstance: function (
-      userData
-      /* { username: string, password: string, roles: string[] }*/ 
-      )/*: Promise<AppUser?> */{
-      const user = new AppUser();
-      if(!user.canAccept(userData))
+    createAppUserInstance: function ( userData = { password, username, roles })/*: Promise<AppUser?> */{
+      return new Promise((resolve, reject) => 
       {
-        console.error('Post body does not conform to registration model...');
-        return null;
-      }
-      const { username, password, roles } = userData;
-      return new Promise((resolve, reject) => {     
-        BCrypt.genSalt(this.saltingRounds).then((salt) => {
-          BCrypt.hash(password, salt).then((passwordHash)=>{
-            user.set('Username', username);
-            user.set('PasswordHash', passwordHash);         
+        const user = new AppUser();
+        if(!user.canAccept(userData))
+        {
+          reject('passed data body does not conform to AppUser model...');
+        }
+        BCrypt.genSalt(this.saltingRounds)
+        .then(salt => BCrypt.hash(userData.password, salt))
+        .then( hashedPswd => 
+          {
+            userData.passwordHash = hashedPswd;
+            user.mapProperties(userData);
             resolve(user);
-          }).catch((err) => reject(err));
-        })
+          })
         .catch((err) => reject(err));
-      }); 
+      });   
     },
 
-    register: function(userData
-    /* { username: string, password: string, roles: string[] }*/ 
+    register: function(userData = { username, password, roles }
     )  /*: Promise<Any> */ {
-      return this.createAppUserInstance(userData)
-      .then((appUser) => {
-        return db.insert(appUser);
-      }).catch((err) => { console.error(err); });
+      return new Promise((resolve, reject) => {
+        this.createAppUserInstance(userData)
+        .then( userModel =>  db.insert(userModel))
+        .then( insertResult => this.getUser(insertResult.model.get('Username')))
+        .then( user => roleService.setRoles(user, userData.roles))
+        .then( userWithRoles => resolve(userWithRoles))
+        .catch( err => reject(err));
+      })
     },
 
     checkCredentials: function(username, password) {  /*: Promise<{ user: AppUser, result: boolean, isError?: boolean}> */ 
-      return this.get(username).then((user) => {
-        if(!user) {
-          return {
-            user: null,
-            result: false
-          };
-        }
-        return new Promise((resolve, reject) => {
-          BCrypt.compare(password, user.get('PasswordHash'))
-          .then((result) => {
-                resolve({
-                  user: user,
-                  result: result
-                });
-            }
-          ).catch( err => {
-            console.error(err);
-            reject({
-              user: user,
-              result: false,
-              isError: true
-            });
-          });
-        });
-        //return BCrypt.compare(password, user.get('PasswordHash'));
+    return new Promise((resolve, reject) => {
+        this.getUser(username)
+        .then( user  => BCrypt.compare(password, user.get('PasswordHash')))
+        .then( result =>  resolve({ user: user, result: result }))
+        .catch( err => reject({ user: user, errMessage: err, isError: true}))     
       });
     }
-
   };
 };
 

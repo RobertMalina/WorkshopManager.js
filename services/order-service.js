@@ -1,7 +1,7 @@
 const DbAccess = require('../DAL/db-access');
 const QueryStore = require('../DAL/query-store');
 
-const { asEntites } = require('../DAL/Models/entity')
+const { flatten } = require('../DAL/Models/entity')
 
 const OrderService = function() {
   
@@ -17,7 +17,7 @@ const OrderService = function() {
           resolve(null);
         }
         else if(response.recordset.length > 0){
-          resolve( asEntites(response, 
+          resolve( flatten(response, 
             { 
               excludedColumns: ['description'],
               modelsName: 'orders'
@@ -41,7 +41,7 @@ const OrderService = function() {
     });
     return new Promise((resolve, reject) => {
       db.run(query).then( (response) => {    
-        resolve( asEntites (response, 
+        resolve( flatten (response, 
           {
             excludedColumns: ['description'],
             modelsName: 'orders'
@@ -79,7 +79,7 @@ const OrderService = function() {
           resolve(null);
         }
         else if(response.recordset.length > 0){        
-          resolve( asEntites(response, 
+          resolve( flatten(response, 
             { 
               excludedColumns: ['id','decription'],
               modelsName: 'order',

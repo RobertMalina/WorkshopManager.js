@@ -13,28 +13,34 @@ const AuthController = function(/*AuthService class*/ authService) {
   const service = authService;
 
   this.register = new Action('/register','POST', function ( req, res ){
-    service.usersSystemApi.register(req.body).then(()=>{
-        return res.status(200).json('1 row affected');
+    const { username, password, roles } = req.body;
+    service.usersSystemApi.register({
+      username: username,
+      password: password,
+      roles: roles
+    })
+    .then( result => {
+        return res.status(200).json(result);
     }).catch((err) => {
-       console.error(err); 
+       console.error(err);
        errorHandler(err, req, res); 
     }); 
-  },{
-    authRequired: true, roles: ['admin']
   });
 
-  this.checkRoles = new Action('/roles/check','POST', function ( req, res ) {
-    const { roleNames } = req.body;
-    service.roleService.verifyRolenames(roleNames)
-      .then((response) => {      
-          return res.status(200).json(response);
+  this.getUser = new Action('/user','POST', function ( req, res ) {
+      const { username } = req.body;
+      service.usersSystemApi.get(username).then( user => {
+          return res.status(200).json(user);
       }).catch((err) => {
         console.error(err); 
-        errorHandler(err, req, res);
-      });
-  });
+        errorHandler(err, req, res); 
+      }); 
+    },
+    { authRequired: true, roles: ['admin']}
+  );
 
-  this.register = new Action('/receive/bcrypted','POST', function ( req, res ) {
+
+  this.getBecryptedPassword = new Action('/receive/bcrypted','POST', function ( req, res ) {
     service.usersSystemApi.createAppUserInstance(req.body)
       .then((user) => {      
           return res.status(200).json({
@@ -53,16 +59,17 @@ const AuthController = function(/*AuthService class*/ authService) {
     const { Username, Password } = req.body;
     
     service.usersSystemApi.checkCredentials( Username, Password )
-      .then((usersSystemCheck) => {
-        if (usersSystemCheck.user && usersSystemCheck.result) {
+      .then( checkRes => {
+        if (checkRes.user && checkRes.result) {
 
           service.authProvider()
-            .onUserSystemSuccess(res, usersSystemCheck.user);
+            .onUserSystemSuccess(res, checkRes.user);
 
           return service.authProvider()
-            .loginSuccessHandler(res, usersSystemCheck.user);
+            .loginSuccessHandler(res, checkRes.user);
         }
-        else if(usersSystemCheck.isError) {
+        else if( checkRes.isError ) {
+            console.error( checkRes.errMessage );           
             return errorHandler({
               response: {},
               message: 'Internal server error'

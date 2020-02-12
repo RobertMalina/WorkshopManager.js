@@ -4,11 +4,12 @@
 const sql = require('mssql');
 properties = {
   'IntPropName': {
-    type: require('mssql').Int,
-    value: 0,
-    nullable: false,
-    skipInsert: false,
-    autoIncrement: false
+    type: require('mssql').Int | require('mssql').Nvarchar ... ,
+    value: any,    
+    skipInsert: bool,
+    primary: bool,
+    nullable: bool,       // is not required when mapProperties & canAccept will return true if this parameter is not provided
+    temporary: bool       // is not required when mapProperties & canAccept will return true if this parameter is not provided
   }
 }
 */
@@ -21,11 +22,11 @@ const Model = function(properties /* look above */) {
     const requiredProperties = {};
     Object.keys(this.properties)
     .filter(key => {
-      return !this.properties[key].autoIncrement;
+      return !this.properties[key].primary;
     })
     .forEach(
       key => {
-        if(!this.properties[key].nullable) {
+        if(!this.properties[key].nullable && !this.properties[key].temporary) {
           requiredProperties[key.toLowerCase()] = this.properties[key];
         }
       }
@@ -50,6 +51,10 @@ const Model = function(properties /* look above */) {
       return !required[key].supplied;
     });
 
+    Object.keys(required).forEach(key=> {
+      delete required[key].supplied;
+    });
+
     return missingProperties.length === 0 ? 
     { yes: true } : { yes: false, missingProperties: missingProperties };
   }
@@ -72,12 +77,12 @@ const Model = function(properties /* look above */) {
         if(modelPropKey) {
           this.set(modelPropKey, formData[key]);
         } else {
-          console.error('unable to match form-data to model property', {key:key })
+          console.error('unable to match form-data to model property', { key:key })
         }
       });
     }
     else {
-      console.error('form data can not be assigned to model', isFormValid.missingProperties )
+      console.error('form data can not be assigned to model, data & missing props:', formData, isFormValid.missingProperties )
     }
   }
 
@@ -103,8 +108,22 @@ const Model = function(properties /* look above */) {
       return false;
     }
     let val = this.properties[propName].value;
-    return val ? val : 'null';
+    return !isNaN(val) ?
+      val :                  // if val is number, return it (skip truthiness)
+      (val ? val : 'null');  // if val isn't number, check for truthiness
   }
+
+  this.insertRowInto = null;
 }
 
-module.exports = Model;
+const isModel = function(object){
+  return object.hasOwnProperty('properties') &&
+  object.hasOwnProperty('get') &&
+  object.hasOwnProperty('set') && 
+  object.hasOwnProperty('mapProperties');
+}
+
+module.exports = {
+  Model: Model,
+  isModel: isModel
+};

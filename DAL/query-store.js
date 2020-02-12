@@ -1,5 +1,20 @@
+const { isString } = require('../shared/tools');
+
 const QueryStore = function () {
   const sqlQueries = {
+    //[AppUser]
+    selectAppUser: function(args) {
+      if(!args.identifier) {
+        console.error('Parametr identifier jest wymagany!');
+        return '';
+      }
+      let wherePart = isString(args.identifier) ?
+      `[Username] LIKE '%${args.identifier}%'`:
+      `Id = ${args.identifier}`;
+
+      return `select top 1 * from [AppUser] where ${wherePart}`;
+    },
+
     //[AppRole]
     selectRolesByNames: function(args) {
       if(!Array.isArray(args.roleNames)) {

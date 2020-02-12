@@ -27,7 +27,7 @@ describe.skip('AppUser EntityModel tests',()=>{
       'Id':{
         type: Sql.BigInt,
         value: '',
-        autoIncrement: true
+        primary: true
       },
       'Username':{
         type: Sql.NVarChar(128),

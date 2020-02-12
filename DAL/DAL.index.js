@@ -1,12 +1,14 @@
-const { Entity, asEntites } = require('./Models/entity');
-const Model = require('./Models/model');
+const { Entity, flatten, asModel } = require('./Models/entity');
+const { Model, isModel } = require('./Models/model');
 const AppUser = require('./AuthModels/AppUser');
 const AppUserToAppRole = require('./AuthModels/AppUserToAppRole');
 
 module.exports = {
   Entity: Entity,
-  asEntites: asEntites,
+  flatten: flatten,
+  asModel: asModel,
   Model: Model,
+  isModel: isModel,
   AppUser: AppUser,
   AppUserToAppRole: AppUserToAppRole
 }

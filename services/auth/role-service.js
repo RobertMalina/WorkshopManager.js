@@ -1,6 +1,5 @@
 const QueryStore = require('../../DAL/query-store');
-const { asEntites } = require('../../DAL/Models/entity');
-
+const { AppUserToAppRole, flatten } = require('../../DAL/DAL.index');
 /*
 options: {
   dbAccess: DbAccess
@@ -19,7 +18,7 @@ const RoleService = function(options /*see above*/) {
   const { dbAccess } = options;
   const queryStore = new QueryStore();
 
-  this.verifyRolenames = (roleNames /*string[]*/) => {
+  const verifyRolenames = (roleNames /*string[]*/) => {
     if(!Array.isArray(roleNames)){
       console.error('createAppRoles: roleNames must be an string array');     
       return null;
@@ -29,7 +28,10 @@ const RoleService = function(options /*see above*/) {
         'selectRolesByNames', { roleNames: roleNames });
       dbAccess.run(query)
         .then((response) => {
-          if(response) { resolve(asEntites(response),{ modelsName: 'roles'}); }
+          if(response) { 
+            resolve( 
+            flatten(response, { /* excludedColumns: ['Id','id'],*/ modelsName: 'roles'})); 
+          }
           else {
             console.error('no roles found for search:', roleNames);
             reject(null);
@@ -49,7 +51,7 @@ const RoleService = function(options /*see above*/) {
             reject(`User (id:${userId}) does not have any roles...`);
           }
           else if(response.recordset.length > 0){
-            const entities = asEntites(response,{});
+            const entities = flatten(response,{});
             resolve(entities);
           }
           else {
@@ -60,6 +62,41 @@ const RoleService = function(options /*see above*/) {
         reject(error);
       });
     });
+  }
+
+  this.setRoles = (user /*AppUser*/, roleNames /*{ name }*/) => {
+    return new Promise((resolve, reject) => { 
+      const bindings = [];
+      verifyRolenames(roleNames).then(res => {
+        if(res.roles.length === 0) {
+          reject('no matching roles found in system database...');
+        }
+        res.roles.forEach(role => {
+          bindings.push(new AppUserToAppRole({userId: user.get('Id'), roleId:  role.id }))
+        });
+
+        if(bindings.length > 1){
+          dbAccess.insertMany({ tableName: 'AppUserToAppRole', models: bindings }, )
+          .then( response =>
+            resolve(response)
+          ).catch(err => 
+            reject(err)
+          );
+        } else {
+          dbAccess.insert(bindings[0])
+          .then( response =>
+            resolve(response)
+          ).catch(err => 
+            reject(err)
+          );
+        }
+        
+
+      }).catch(err => {
+        reject(err);
+      })
+    })
+    
   }
 };
 

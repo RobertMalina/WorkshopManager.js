@@ -2,15 +2,18 @@ const QueryString = function (dbSchema) {
 
   this.dbSchema = dbSchema || "dbo";
 
-  const getModelParams = function (modelMap) {
-    const args = [];
-    const columns = [];
-    for(let key in modelMap){
-      let propSettings = modelMap[key];
-      if(propSettings.autoIncrement){
+  const asQueryParams = function (properties) {
+    const args = [],
+     columns = [];
+
+    let prop, argName;
+
+    for(let key in properties){
+      prop = properties[key];
+      if(prop.skipInsert) {
         continue;
       }
-      let argName = key.toLowerCase();
+      argName = key.toLowerCase();
       columns.push(key);
       args.push(`@${argName}`);
     }
@@ -44,9 +47,9 @@ const QueryString = function (dbSchema) {
     return insertQuery;
   }
 
-  this.asInsertFor = function (entityModel) {
-    const tableName = entityModel.constructor.name;
-    const params = getModelParams(entityModel.properties);
+  this.asInsertFor = function (model) {
+    const tableName = model.constructor.name;
+    const params = asQueryParams(model.properties);
     return insertQueryStringFor(this.dbSchema, tableName, params);
   }
 };

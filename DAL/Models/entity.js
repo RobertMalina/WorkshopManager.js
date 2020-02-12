@@ -1,3 +1,5 @@
+  const { isModel } = require('../Models/model');
+  
   const Entity = function(readData, ignoredColumns, kebabCase ) {
     this.rawData = readData;
     this.ignoredColumns;
@@ -28,8 +30,7 @@
               }
               this[subEntityName] = this[subEntityName] || {};      
               this[subEntityName][subEntityPropName] = this.rawData[prop];
-            }
-            else{
+            } else {
               let propName = prop;
               if(this.kebabCase) {
                 propName = propName.charAt(0).toLowerCase() + propName.substring(1);
@@ -48,12 +49,32 @@
   const hoistFromMultiSelect = (recordsets /*: [ [ [Object] ], [ [Object] ] ] */) => {
     const records = [];
     recordsets.forEach(recordSet => {
-      records.push(recordSet);
+      records.push(recordSet[0]);
     });
     return records;
   }
 
-  const asEntites = function (dbResponse /*odczyt z bazy*/, options) {
+  const asModel = ({ dbRead, modelType, modelsName, excludedColumns }) => {
+    if(isModel(new modelType())) {
+      const flattened = flatten(dbRead, { 
+        excludedColumns: excludedColumns
+      });
+      const models = [];
+      let model;
+      flattened.forEach( data => {
+        model = new modelType();
+        model.mapProperties(data);
+        models.push(model);
+      })
+
+      return models.length < 2 ?
+        models[0]:
+        models;
+    }
+    return null;
+  }
+
+  const flatten = function (dbResponse /*odczyt z bazy*/, options) {
 
     // a) if rowsAffected contains array of N int's => take recordsets.forEach(a[] => acc.push(a[0])) as records
     // b) if rowsAffected contains one int, (like: rowsAffected: [ 5 ]) => take recordset as "records:
@@ -70,6 +91,7 @@
     }
 
     options = options || {};
+    
     if(!options.excludedColumns) {
       options.excludedColumns = [];
     }
@@ -82,7 +104,7 @@
       entities.push(entity);
     });
 
-    const response = {};
+    let response = {};
 
     options.modelsName ? 
       response[options.modelsName] = entities :
@@ -93,5 +115,6 @@
 
   module.exports = {
     Entity: Entity,
-    asEntites: asEntites
+    flatten: flatten,
+    asModel: asModel
   }
