@@ -11,6 +11,7 @@ const AppServer = function(/* {
 }*/config) {
 
   config = config || {};
+  const actions = [];
 
   const server = express();
   this.port = config.port || '4210';
@@ -76,15 +77,7 @@ const AppServer = function(/* {
     server.use( bodyParser.json() );
     server.use(bodyParser.urlencoded({
       extended: true
-    })); 
-  };
-
-  const isActionValid = function(action) {
-
-  };
-
-  const isFunction = function(func) {
-    return func && {}.toString.call(func) === '[object Function]';
+    }));
   };
 
   //@to override
@@ -100,6 +93,10 @@ const AppServer = function(/* {
   //debug
   this.setAuthenticateRoutine = (func) => {
     authenticate = func;
+  }
+
+  this.getActionByPath = (actionPath) => {
+    return actions.find(a => a.path === actionPath);
   }
 
   this.enableCORS = function(options) {
@@ -126,7 +123,6 @@ const AppServer = function(/* {
       }
 
       const actions = controller.getActions();
-      let registered;
       
       for (const key in actions) {
         let action = actions[key];
@@ -157,6 +153,7 @@ const AppServer = function(/* {
             }
           }
           results.push(action.asRegistrationResult());
+          actions.push(action);
         }
         else{
           let errMsg = checkAction(action).msg;

@@ -52,13 +52,13 @@ const AuthController = function(/*AuthService class*/ authService) {
         errorHandler(err, req, res);
       });
   },{
-    authRequired: true, roles: ['admin']
+    authRequired: false
   });
 
   this.login = new Action('/login','POST', function ( req, res ) {
-    const { Username, Password } = req.body;
+    const { username, password } = req.body;
     
-    service.usersSystemApi.checkCredentials( Username, Password )
+    service.usersSystemApi.checkCredentials( username, password )
       .then( checkRes => {
         if (checkRes.user && checkRes.result) {
 

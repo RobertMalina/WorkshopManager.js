@@ -67,6 +67,7 @@ const AuthService = function() {
        .then( read => {
           if(!read.recordset.length < 1) {
             const user = asModel( { dbRead:read, modelType: AppUser });
+            
             if( withRoles ) {
               roleService.getRolesOf(user.get('Id'))
               .then(roles => {
@@ -76,7 +77,8 @@ const AuthService = function() {
                 } else {
                   reject(`can not fetch roles o user with id:${user.get('Id')}`)
                 }
-              }).catch(err => { reject(err)}); 
+              }).catch(err => { reject(err)});
+              
             } else {
               resolve(user);
             }
@@ -84,8 +86,7 @@ const AuthService = function() {
          else {
             resolve(`user with username: ${username}, could not be found...`);
          }
-       })
-       .catch(err => { reject(err)});    
+       }).catch(err => { reject(err)});    
      });
     },
 
@@ -97,6 +98,7 @@ const AuthService = function() {
         {
           reject('passed data body does not conform to AppUser model...');
         }
+        
         BCrypt.genSalt(this.saltingRounds)
         .then(salt => BCrypt.hash(userData.password, salt))
         .then( hashedPswd => 
@@ -123,10 +125,14 @@ const AuthService = function() {
 
     checkCredentials: function(username, password) {  /*: Promise<{ user: AppUser, result: boolean, isError?: boolean}> */ 
     return new Promise((resolve, reject) => {
+        let fetchedUser;
         this.getUser(username)
-        .then( user  => BCrypt.compare(password, user.get('PasswordHash')))
-        .then( result =>  resolve({ user: user, result: result }))
-        .catch( err => reject({ user: user, errMessage: err, isError: true}))     
+        .then( user  => {
+          fetchedUser = user;
+          return BCrypt.compare(password, user.get('PasswordHash'))
+        })
+        .then( result =>  resolve({ user: fetchedUser, result: result }))
+        .catch( err => reject(err))     
       });
     }
   };

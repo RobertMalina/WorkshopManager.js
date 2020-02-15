@@ -14,7 +14,8 @@ const Action = function(path, httpVerb, run, securityConfig) {
   
   this.path = path;
   this.httpVerb = httpVerb;
-  if (securityConfig) {
+  securityConfig = securityConfig || {};
+  if (securityConfig.authRequired) {
     this.authRequired = true;
     this.roles = securityConfig.roles || 'all';
   } else {
