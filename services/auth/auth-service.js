@@ -84,7 +84,8 @@ const AuthService = function() {
             }
          }
          else {
-            resolve(`user with username: ${username}, could not be found...`);
+            console.error(`user with username: ${identifier}, could not be found...`);      
+            resolve(null);
          }
        }).catch(err => { reject(err)});    
      });
@@ -126,13 +127,17 @@ const AuthService = function() {
     checkCredentials: function(username, password) {  /*: Promise<{ user: AppUser, result: boolean, isError?: boolean}> */ 
     return new Promise((resolve, reject) => {
         let fetchedUser;
-        this.getUser(username)
+        this.getUser(username, true)
         .then( user  => {
+          console.log('user',user);       
+          if(!user) { 
+            resolve({});
+          }
           fetchedUser = user;
-          return BCrypt.compare(password, user.get('PasswordHash'))
+          return BCrypt.compare(password, user.get('PasswordHash'))          
         })
         .then( result =>  resolve({ user: fetchedUser, result: result }))
-        .catch( err => reject(err))     
+        .catch( err => reject(err)) 
       });
     }
   };

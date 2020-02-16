@@ -53,7 +53,18 @@ const JWTAuthProvider = function(options) {
   };
 
   this.authHandler = (req, res, next) => {
-    let token = (req.method === 'POST') ? req.body.token : req.query.token
+
+    let token = req.headers.authorization ? 
+      req.headers.authorization :
+      (req.method === 'POST') ? req.body.token : req.query.token;
+
+    if(!token) {
+      return res.status(403).json({ error: 'No credentials sent!' });
+    }
+
+    if(token.indexOf('Bearer ') !== -1){
+      token = token.replace('Bearer ','');
+    }
     
     verify(token)
       .then((decodedToken) =>

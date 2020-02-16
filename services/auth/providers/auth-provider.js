@@ -16,7 +16,7 @@ const AuthProvider = function (config) {
     },
     loginFailedHandler: (res) => {
       return res.status(401).json({
-        msg: 'Invalid Username || Password...!',
+        message: 'Invalid Username || Password...!',
         isAuthenticated: false
       });
     },   
