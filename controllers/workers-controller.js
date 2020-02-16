@@ -22,7 +22,7 @@ const WorkerController = function(/*workerService class*/ workerService) {
         })
         .catch(err => {
           console.error(err);
-          errorHandler(err);
+          errorHandler(err, res);
         });
     },
     { authRequired: true, roles: ['admin'] }
@@ -39,7 +39,7 @@ const WorkerController = function(/*workerService class*/ workerService) {
         })
         .catch(err => {
           console.error(err);
-          errorHandler(err);
+          errorHandler(err, res);
         });
     },
     { authRequired: true, roles: ['admin'] }

@@ -127,9 +127,11 @@ const AppServer = function(/* {
       for (const key in actions) {
         let action = actions[key];
         if (checkAction(action).isOk) {
+
           if (action.authRequired) {
             server.use(action.route, authenticate);
           }
+
           action.httpVerb = action.httpVerb.toUpperCase();
           switch (action.httpVerb) {
             case 'GET': {

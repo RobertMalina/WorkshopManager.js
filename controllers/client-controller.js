@@ -22,7 +22,7 @@ const ClientController = function(/*ClientService class*/ clientService) {
         })
         .catch(err => {
           console.error(err);
-          errorHandler(err);
+          errorHandler(err, res);
         });
     },
     { authRequired: true, roles: ['admin'] }
@@ -38,8 +38,7 @@ const ClientController = function(/*ClientService class*/ clientService) {
           return res.status(200).json(response.recordset);
         })
         .catch(error => {
-          console.error(error);
-          errorHandler(err);
+          errorHandler(err, res);
         });
     },
     { authRequired: true }

@@ -110,7 +110,11 @@
       response[options.modelsName] = entities :
       response = entities;
 
-    return response;
+    if(options.asSingleResult){
+      return response[0];
+    } else {
+      return response;
+    }   
   }
 
   module.exports = {

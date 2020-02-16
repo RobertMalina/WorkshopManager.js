@@ -37,6 +37,7 @@ const QueryStore = function () {
       }
       return `SELECT * FROM [dbo].[GetRolesOfUserWithId](${args.userId})`;
     },
+
     //[Order]
     selectOrderWithId: function(args) {
       if(!args.id){
@@ -48,16 +49,40 @@ const QueryStore = function () {
     selectOrdersNonArchivized: function(args) {
       return `EXEC GetNonArchivedOrdersData`;
     },
-    selectOrdersCountAll: function(args) {
-      return 'SELECT COUNT(o.Id) FROM [Order] o';
-    },
-    selectOrdersCountNonArchivized: function(args) {
-      return 'SELECT COUNT(o.Id) FROM [Order] o WHERE o.Archived = 0';
+    selectOrdersCount: function(args) {
+      if(!args.statusFilters) {
+        args.statusFilters = {
+          registered: true,
+          inProgress: true,
+          finished: true
+        }
+      }
+      return `SELECT COUNT (O.Id) AS ordersCount from OrdersRegardingStatuses(
+        ${args.statusFilters.registered ? '1' : '0'},
+        ${args.statusFilters.inProgress ? '1' : '0'},
+        ${args.statusFilters.finished ? '1' : '0'} 
+        ) O`;
     },
     selectOrdersForPagedList: function(args) {
+      if(!args){
+        throw new Error('args param is required!')
+      }
+      if(!args.statusFilters) {
+        args.statusFilters = {
+          registered: true,
+          inProgress: true,
+          finished: true
+        }
+      }
       args.page = args.page || 0;
       args.itemsOnPage = args.itemsOnPage || 5;
-      return `SELECT * FROM GetOrdersForPage( ${args.page}, ${args.itemsOnPage}, ${args.archivedToo ? '1' : '0'});`
+      return `SELECT * FROM GetOrdersForPage(
+        ${args.page}, 
+        ${args.itemsOnPage},
+        ${args.statusFilters.registered ? '1' : '0'},
+        ${args.statusFilters.inProgress ? '1' : '0'},
+        ${args.statusFilters.finished ? '1' : '0'}   
+        );`
     },
     //[Worker]
     selectWorkersOfOrder: function(args) {

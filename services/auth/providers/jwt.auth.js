@@ -74,10 +74,14 @@ const JWTAuthProvider = function(options) {
         next();
       })
       .catch((err) =>
-      {       
+      {
+        const errMsg = err.name === 'TokenExpiredError' ?
+          `The token has expired at ${err.expiredAt}.` :
+          `Invalid auth token provided.`;
+
         onAccessDenied(err); 
         res.status(400)
-          .json({message: "Invalid auth token provided."})
+          .json({message: errMsg})
       })
   };
 

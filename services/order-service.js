@@ -9,7 +9,7 @@ const OrderService = function() {
   const queryStore = new QueryStore();
 
   this.fetchActiveOrders = function() {
-    return new Promise((resolve, reject)=> {
+    return new Promise((resolve, reject) => {
       db.run(queryStore.get('selectOrdersNonArchivized'))
       .then((response) => {
         
@@ -33,61 +33,90 @@ const OrderService = function() {
     });
   };
 
-  this.fetchOrdersForPage = function( page, itemsOnPage, archivedToo ) {
-    let query = queryStore.get('selectOrdersForPagedList', {
-      page: page,
-      itemsOnPage: itemsOnPage,
-      archivedToo: archivedToo
-    });
-    return new Promise((resolve, reject) => {
-      db.run(query).then( (response) => {    
-        resolve( flatten (response, 
-          {
+  const getPagedOrders = ({ page, itemsOnPage, archivedToo, statusFilters }) => {
+    return new Promise((resolve, reject) => 
+    {
+      let query = queryStore.get('selectOrdersForPagedList', {
+        page,
+        itemsOnPage,
+        archivedToo,
+        statusFilters
+      });  
+      db.run(query).then((response) => {    
+        resolve( flatten (response, {
             excludedColumns: ['description'],
             modelsName: 'orders'
           }));
-      }).catch(err => {
-        reject(err);
-      });
+        }).catch(err => {
+          reject(err);
+        });
+    });
+  };
+
+  this.fetchAsPageContent = ( { page, itemsOnPage, statusFilters }) => {
+    
+    return new Promise((resolve, reject) => {
+
+      let ordersPortion;
+
+      if(!page && page !== 0) {
+        reject('page param is obligatory!');
+      }
+      if(!itemsOnPage) {
+        reject('itemsOnPage param is obligatory!');
+      }
+      if(typeof statusFilters !== 'object') {
+        console.warn('paged orders fetching: status filters are not passed, orders of all statuses will be considered to return.');
+      }
+
+      getPagedOrders({page, itemsOnPage, statusFilters })
+      .then( data => {
+        if(!data.orders) {
+          reject('Orders fetch error occured...');
+        }
+        ordersPortion = data.orders;
+        return this.getOrdersCount( { statusFilters })
+      })
+      .then( ordersCount => resolve({
+        orders: ordersPortion,
+        count: ordersCount
+      }))
+      .catch( err => reject(err));
     });
   }
 
-  this.getOrdersCount = function(archivedToo){
-    let query = '';
-    if(archivedToo){
-      query = queryStore.get('selectOrdersCountAll');
-    }
-    else {
-      query = queryStore.get('selectOrdersCountNonArchivized');
-    }
+  this.getOrdersCount = ({ statusFilters }) => {
     return new Promise((resolve, reject) => {
-      db.run(query).then((response) => {
-        resolve({
-          ordersCount: response.recordset[0][""]
-        });
-      }).catch(err => {
-        reject(err);
-      });
+
+      const query = queryStore
+        .get('selectOrdersCount', { statusFilters });
+
+      db.run(query)
+      .then( response =>
+        {
+          response = flatten(response, { asSingleResult: true });
+          console.log('ordersCount',response.ordersCount);
+          resolve(response.ordersCount);
+        })
+      .catch( err => reject(err));
     });
   }
 
   this.fetchOrder = function(id){
     return new Promise((resolve, reject)=> {
+
+      if(!id){
+        reject('id parameter is obligatory!')
+      }
+
       db.run(queryStore.get('selectOrderWithId', { id:id }))
       .then((response) => {
         if(!response.recordset) {
-          resolve(null);
+          resolve(`Can't fetch order with id: ${id}...`);
         }
-        else if(response.recordset.length > 0){        
-          resolve( flatten(response, 
-            { 
-              excludedColumns: ['id','decription'],
-              modelsName: 'order',
-            }));
-        }
-        else {
-          resolve(null);
-        }
+        response = flatten(response,{ asSingleResult: true });
+        console.log(response);      
+        resolve(response);
       })
       .catch((error)=> {
         reject(error);

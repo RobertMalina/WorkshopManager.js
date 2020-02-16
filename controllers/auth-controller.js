@@ -21,20 +21,15 @@ const AuthController = function(/*AuthService class*/ authService) {
     })
     .then( result => {
         return res.status(200).json(result);
-    }).catch((err) => {
-       console.error(err);
-       errorHandler(err, req, res); 
-    }); 
+    }).catch(err => errorHandler(err, res));
   });
 
   this.getUser = new Action('/user','POST', function ( req, res ) {
       const { username } = req.body;
       service.usersSystemApi.get(username).then( user => {
           return res.status(200).json(user);
-      }).catch((err) => {
-        console.error(err); 
-        errorHandler(err, req, res); 
-      }); 
+      }).catch(err => errorHandler(err, res)
+      ); 
     },
     { authRequired: true, roles: ['admin']}
   );
@@ -49,7 +44,7 @@ const AuthController = function(/*AuthService class*/ authService) {
           });
       }).catch((err) => {
         console.error(err); 
-        errorHandler(err, req, res);
+        errorHandler(err, res);
       });
   },{
     authRequired: false
@@ -68,19 +63,18 @@ const AuthController = function(/*AuthService class*/ authService) {
           return service.authProvider()
             .loginSuccessHandler(res, checkRes.user);
         }
-        else if( checkRes.isError ) {
-            console.error( checkRes.errMessage );           
+        else if( checkRes.isError ) {         
             return errorHandler({
               response: {},
               message: 'Internal server error'
-            }, req, res);
+            }, res );
         }
         else {
           return service.authProvider().loginFailedHandler(res);
         }
         }).catch((err) => {
           console.error(err); 
-          return errorHandler(err, req, res);
+          return errorHandler(err, res);
       }); 
   });
 }

@@ -16,74 +16,30 @@ const OrderController = function(/*OrderService class*/ orderService) {
       res.status(200).send('Hear me roar!');
   });
 
-  this.getOrders = new Action('', 'GET',  
-    function( req, res ) {
-      res.setHeader('Content-Type', 'application/json');
-      service
-        .fetchActiveOrders()
-        .then(response => {
-          return res.status(200).json(response);
-        })
-        .catch(err => {
-          console.error(err);
-          errorHandler(err);
-        });
-    },
-    { authRequired: true, roles: ['regular'] }
-  );
-
   this.getCount = new Action('/count', 'POST', 
     function(req, res) {
-      const countArchivedToo = req.body.archivedToo;
-      res.setHeader('Content-Type', 'application/json');
-      service.getOrdersCount(countArchivedToo)
-        .then(response => {
-          return res.status(200).json(response);
-        })
-        .catch(err => {
-          console.error(err);
-          errorHandler(err);
-        });
+      service.getOrdersCount(req.body)
+        .then(response => res.status(200).json(response))
+        .catch(err => errorHandler(err, res));
     },
     { authRequired: true, roles: ['regular'] }
   );
 
-  this.ordersPagedListSet = new Action('/pagedListSet', 'POST',
+  this.getPagedOrders = new Action('/paged', 'POST',
     function (req, res) {
-      res.setHeader('Content-Type', 'application/json');
-      const { page, itemsOnPage, archivedToo } = req.body;
-      const response = {};
-      service.fetchOrdersForPage(page, itemsOnPage, archivedToo)
-      .then(result => {
-        response.orders = result["orders"];
-        service.getOrdersCount(archivedToo)
-        .then(result =>{
-           response.totalCount = result["ordersCount"];
-           return res.status(200).json(response);
-          });
-      }).catch( err => {
-        errorHandler(err);
-      })
-      .catch( err => {
-        errorHandler(err);
-      });
+      service.fetchAsPageContent(req.body)
+      .then(result => res.status(200).json(result))
+      .catch( err => errorHandler(err, res));
     },
     { authRequired: true, roles: ['regular'] }
   );
 
   this.getOrder = new Action('/:id', 'GET', 
     function ( req,res ) {
-      res.setHeader('Content-Type', 'application/json');
-      const id = req.params.id;
       service
-        .fetchOrder(id)
-        .then(response => {
-          return res.status(200).json(response);
-        })
-        .catch(error => {
-          console.error(error);
-          errorHandler(err);
-        });
+        .fetchOrder(req.params.id)
+        .then(response => res.status(200).json(response))
+        .catch(err => errorHandler(err, res));
     },
     { authRequired: true }
   );
