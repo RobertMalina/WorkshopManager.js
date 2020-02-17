@@ -53,7 +53,6 @@ const JWTAuthProvider = function(options) {
   };
 
   this.authHandler = (req, res, next) => {
-
     let token = req.headers.authorization ? 
       req.headers.authorization :
       (req.method === 'POST') ? req.body.token : req.query.token;

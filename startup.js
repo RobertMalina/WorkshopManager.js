@@ -2,7 +2,7 @@ const AppServer = require('./server');
 
 const { OrderController, AuthController, ClientController, WorkerController, AppController }
  = require('./controllers/controllers.index');
-const { OrderService, WorkerService, ClientService, AuthService, RoleService  }
+const { OrderService, WorkerService, ClientService, AuthService, TimeLogService  }
  = require('./services/services.index');
 
  //const roleService = new RoleService();
@@ -30,7 +30,7 @@ server.enableCORS();
 
 const endpoints = [
   authController,
-  new OrderController(new OrderService()),
+  new OrderController(new OrderService(), new TimeLogService()),
   new ClientController(new ClientService()),
   new WorkerController(new WorkerService()),
   new AppController()

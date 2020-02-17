@@ -92,7 +92,44 @@ const QueryStore = function () {
           W.LastName,
           W.PhoneNumber FROM [Worker] W
           INNER JOIN OrderToWorker otw on otw.WorkerId = W.Id and otw.OrderId = @orderId`;
+    },
+
+    // [TimeLog]
+    selectSpentTimes: function(args) {
+      if(!args){
+        throw new Error('args param is required!')
+      }
+      if(!Array.isArray(args.ordersIds)){
+        throw new Error(`args.ordersIds param isn't an array!`)
+      }
+      if(!args.ordersIds.every(n => !isNaN(parseInt(n))) ) {
+        throw new Error(`some of passed orders ids are not numbers...`)
+      }
+
+      const ids = new Set(args.ordersIds);
+      const queryStart = 'SELECT COUNT(tl.[LogTime]) as spentTime, tl.[OrderId] as orderId FROM [dbo].[TimeLog] tl';
+      const whereParts = [];
+      const queryEnd = 'GROUP BY (tl.[OrderId]);'
+
+      // sample result (when args.ordersIds = [1,3,4,6,7])
+      // `SELECT COUNT(tl.[LogTime]) as spentTime, tl.[OrderId] as orderId FROM [dbo].[TimeLog] tl
+      // WHERE tl.[OrderId] = 1
+      // OR tl.[OrderId] = 3
+      // OR tl.[OrderId] = 4
+      // OR tl.[OrderId] = 6
+      // OR tl.[OrderId] = 7
+      // GROUP BY (tl.[OrderId]);`
+
+      ids.forEach( (id, index) => {
+        if(index === 0){
+          whereParts.push(`WHERE tl.[OrderId] = ${id}`);
+        } else {
+          whereParts.push(`OR tl.[OrderId] = ${id}`);
+        }
+      });
+      return `${queryStart}\n${whereParts.join('\n')}${queryEnd}`; ;
     }
+
   }
 
   //zwraca kwerende SQL zadeklarowaną w parametrze sqlQueries

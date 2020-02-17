@@ -128,8 +128,7 @@ const AuthService = function() {
     return new Promise((resolve, reject) => {
         let fetchedUser;
         this.getUser(username, true)
-        .then( user  => {
-          console.log('user',user);       
+        .then( user  => {  
           if(!user) { 
             resolve({});
           }

@@ -14,6 +14,8 @@ const Action = function(path, httpVerb, run, securityConfig) {
   
   this.path = path;
   this.httpVerb = httpVerb;
+
+  // authorization settings resolving
   securityConfig = securityConfig || {};
   if (securityConfig.authRequired) {
     this.authRequired = true;
@@ -22,6 +24,8 @@ const Action = function(path, httpVerb, run, securityConfig) {
     this.authRequired = false;
     this.roles = 'all';
   }
+  //
+
   this.run = run;
 
   this.setAsRouteOf = function(/*{}:Controller*/ controller) {
@@ -35,7 +39,8 @@ const Action = function(path, httpVerb, run, securityConfig) {
       route: this.route || `NOT-ASSIGNED${this.path}`,
       type: this.httpVerb.toUpperCase(),
       registered: errConfig ? false : true,
-      errMsg: errConfig ? errConfig.errMsg : null
+      errMsg: errConfig ? errConfig.errMsg : null,
+      authRequired: this.authRequired
     };
   };
 

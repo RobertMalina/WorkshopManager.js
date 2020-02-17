@@ -173,9 +173,10 @@ const AppServer = function(/* {
       if(a.registered && b.registered) { return 0; }
       else { return 1; }
     });
-    registerResults.forEach((res) => {
-      if(res.registered){
-        console.log(`${res.type.toUpperCase()} action registered\t:\t ${res.route}`)
+    console.log('server registered endpoints:')
+    registerResults.forEach((action) => {
+      if(action.registered){
+        console.log(`${action.type.toUpperCase()} \t: ${action.route}${action.authRequired ? '\t(Secured)': ''}`)
       }
       else{
         console.warn(`Some issues have been deteced while registration of the route: ${res.errMsg}`);

@@ -2,14 +2,18 @@ const Controller = require('./base/controller');
 const { Action } = require('./base/action');
 const errorHandler = require('./base/error-handler');
 
-const OrderController = function(/*OrderService class*/ orderService) {
+const OrderController = function(
+  /*OrderService class*/ oService,
+  /*TimeLogService class*/ tlService
+  ) {
   
   Controller.call( this, {
     isApiController: true,
     pluralize: true
   });
 
-  const service = orderService;
+  const ordersService = oService;
+  const timeLogService = tlService;
 
   this.hello = new Action('/hello', 'GET', 
     function(req, res) {
@@ -18,7 +22,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
 
   this.getCount = new Action('/count', 'POST', 
     function(req, res) {
-      service.getOrdersCount(req.body)
+      ordersService.getOrdersCount(req.body)
         .then(response => res.status(200).json(response))
         .catch(err => errorHandler(err, res));
     },
@@ -27,7 +31,7 @@ const OrderController = function(/*OrderService class*/ orderService) {
 
   this.getPagedOrders = new Action('/paged', 'POST',
     function (req, res) {
-      service.fetchAsPageContent(req.body)
+      ordersService.fetchAsPageContent(req.body)
       .then(result => res.status(200).json(result))
       .catch( err => errorHandler(err, res));
     },
@@ -36,12 +40,24 @@ const OrderController = function(/*OrderService class*/ orderService) {
 
   this.getOrder = new Action('/:id', 'GET', 
     function ( req,res ) {
-      service
+      ordersService
         .fetchOrder(req.params.id)
         .then(response => res.status(200).json(response))
         .catch(err => errorHandler(err, res));
     },
     { authRequired: true }
+  );
+
+  this.getSpentTimes = new Action('/spenttimes', 'POST', 
+    function ( req,res ) {
+      console.log(req.body);
+      
+      timeLogService
+        .getSpentTimeLogs(req.body)
+        .then(response => res.status(200).json(response))
+        .catch(err => errorHandler(err, res));
+    },
+    { authRequired: false }
   );
 };
 

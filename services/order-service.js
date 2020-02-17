@@ -95,7 +95,6 @@ const OrderService = function() {
       .then( response =>
         {
           response = flatten(response, { asSingleResult: true });
-          console.log('ordersCount',response.ordersCount);
           resolve(response.ordersCount);
         })
       .catch( err => reject(err));
@@ -114,8 +113,7 @@ const OrderService = function() {
         if(!response.recordset) {
           resolve(`Can't fetch order with id: ${id}...`);
         }
-        response = flatten(response,{ asSingleResult: true });
-        console.log(response);      
+        response = flatten(response,{ asSingleResult: true });  
         resolve(response);
       })
       .catch((error)=> {
