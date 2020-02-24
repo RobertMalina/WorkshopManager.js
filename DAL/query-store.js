@@ -106,7 +106,6 @@ const QueryStore = function () {
         throw new Error(`some of passed orders ids are not numbers...`)
       }
 
-      const ids = new Set(args.ordersIds);
       const queryStart = 'SELECT COUNT(tl.[LogTime]) as spentTime, tl.[OrderId] as orderId FROM [dbo].[TimeLog] tl';
       const whereParts = [];
       const queryEnd = 'GROUP BY (tl.[OrderId]);'
@@ -120,14 +119,15 @@ const QueryStore = function () {
       // OR tl.[OrderId] = 7
       // GROUP BY (tl.[OrderId]);`
 
-      ids.forEach( (id, index) => {
+      args.ordersIds.forEach( (id, index) => {        
         if(index === 0){
           whereParts.push(`WHERE tl.[OrderId] = ${id}`);
         } else {
           whereParts.push(`OR tl.[OrderId] = ${id}`);
         }
       });
-      return `${queryStart}\n${whereParts.join('\n')}${queryEnd}`; ;
+      
+      return `${queryStart}\n${whereParts.join('\n')} ${queryEnd}`; ;
     }
 
   }

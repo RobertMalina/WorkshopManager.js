@@ -122,6 +122,16 @@ const AppServer = function(/* {
         return null;
       }
 
+      // const actions = controller.getActions().sort( (a,b) =>{
+      //   if(a.authRequired && !b.authRequired){
+      //     return -1;
+      //   }
+      //   else if(!a.authRequired && b.authRequired){
+      //     return 1;
+      //   }
+      //   return 0;
+      // });
+
       const actions = controller.getActions();
       
       for (const key in actions) {
