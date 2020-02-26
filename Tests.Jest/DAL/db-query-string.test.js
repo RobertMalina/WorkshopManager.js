@@ -1,61 +1,57 @@
 const AppUser = require('../../DAL/AuthModels/AppUser');
-const Sql  = require('mssql');
+const Sql = require('mssql');
 const QueryString = require('../../DAL/db-query-string');
 
 let user;
 
-beforeAll(()=>{
+beforeAll(() => {});
 
-});
-
-beforeEach(()=>{
+beforeEach(() => {
   user = new AppUser();
 });
 
-describe.skip('AppUser EntityModel tests',()=>{
-
-  test('EntityModel should return false if property name is not valid.',()=>{  
-    const result = user.set("WrongProperty",32);
+describe('AppUser EntityModel tests', () => {
+  test('EntityModel should return false if property name is not valid.', () => {
+    const result = user.set('WrongProperty', 32);
     expect(result).toBe(false);
   });
-  
-  test('EntityModel set method works correctly.',()=> {
-    user.set('Username','George Patton');
-    user.set('PasswordHash','2d928568ce17d1485f6d2c48bce9af5648c59dea');
-    user.set('NotExistingProp', Date.now );
+
+  test('EntityModel set method works correctly.', () => {
+    user.set('Username', 'George Patton');
+    user.set('PasswordHash', '2d928568ce17d1485f6d2c48bce9af5648c59dea');
+    user.set('NotExistingProp', Date.now);
     expect(user.properties).toEqual({
-      'Id':{
+      Id: {
         type: Sql.BigInt,
         value: '',
-        primary: true
+        primary: true,
       },
-      'Username':{
+      Username: {
         type: Sql.NVarChar(128),
-        value: 'George Patton'
+        value: 'George Patton',
       },
-      'PasswordHash':{
+      PasswordHash: {
         type: Sql.NVarChar(64),
-        value: '2d928568ce17d1485f6d2c48bce9af5648c59dea'
-      }
+        value: '2d928568ce17d1485f6d2c48bce9af5648c59dea',
+      },
     });
   });
 });
 
-describe.skip('mssql-module insert-query parser tests', ()=> {
-  
+describe('mssql-module insert-query parser tests', () => {
   let query;
 
-  beforeEach(()=>{
+  beforeEach(() => {
     query = new QueryString().asInsertFor(user);
   });
 
   test('Should return valid sql-query-string for INSERT AppUser entity.', () => {
-    expect(query).toBe(`INSERT INTO [dbo].[AppUser] ([Username],[PasswordHash]) VALUES (@username,@passwordhash)`);
+    expect(query).toBe(
+      `INSERT INTO [dbo].[AppUser] ([Username],[PasswordHash]) VALUES (@username,@passwordhash)`,
+    );
   });
 
-  test('Should contain correct table name', ()=>{
+  test('Should contain correct table name', () => {
     expect(query).toMatch(/AppUser/);
   });
-
 });
-

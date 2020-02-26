@@ -1,28 +1,26 @@
 const { reduceObj } = require('../../shared/tools');
 
-describe.skip('reduceObj should return', ()=> {
-
+describe('reduceObj should return', () => {
   const payload = {
     password: 'zaq123wsx',
     username: 'testUser1',
     department: 'Workshop A',
     func1: () => {},
-    func2: () => {}
+    func2: () => {},
   };
 
   const transformation = (data, val, key) => {
-    if (typeof val !== "function" && key !== "password")
-    {
-      data[key] = val
+    if (typeof val !== 'function' && key !== 'password') {
+      data[key] = val;
     }
     return data;
-  }
+  };
   const target = {
     username: 'testUser1',
-    department: 'Workshop A'
+    department: 'Workshop A',
   };
 
-  const received = reduceObj( payload, transformation, {} );
+  const received = reduceObj(payload, transformation, {});
 
   test('object with properties: username & department', () => {
     expect(received).toEqual(target);
@@ -31,5 +29,4 @@ describe.skip('reduceObj should return', ()=> {
   test('object without password property', () => {
     expect(received.password).toBeFalsy();
   });
-
 });

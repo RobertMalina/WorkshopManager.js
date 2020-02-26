@@ -4,13 +4,12 @@ const ClientController = require('../../controllers/client-controller');
 const Controller = require('../../controllers/base/controller');
 const { Action } = require('../../controllers/base/action');
 
-describe.skip('routes root part pluralization', () => {
-
+describe('routes root part pluralization', () => {
   let ordersController, rootPart;
 
-  beforeEach( () => {
+  beforeEach(() => {
     ordersController = new OrderController();
-    console.log('orders controller created...')
+    console.log('orders controller created...');
   });
 
   test('by default should be supported', () => {
@@ -24,20 +23,34 @@ describe.skip('routes root part pluralization', () => {
   });
 });
 
-describe.skip('actions gathering: ', () => {
-
+describe('actions gathering: ', () => {
   test('abstract controller should have 0 actions', () => {
     const abstractController = new Controller({}),
-      actionsCount = abstractController.getActions().length;  
+      actionsCount = abstractController.getActions().length;
     expect(actionsCount).toEqual(0);
   });
 
   test('abstract controller should have 3 actions', () => {
     const abstractController = new Controller({});
-    let actionsCount;  
-    abstractController.action1 = new Action('/route1','GET',(req, res) =>{}, {});
-    abstractController.action2 = new Action('/route2','POST',(req, res) =>{}, {});
-    abstractController.action3 = new Action('/route3/:id','GET',(req, res) =>{}, {});
+    let actionsCount;
+    abstractController.action1 = new Action(
+      '/route1',
+      'GET',
+      (req, res) => {},
+      {},
+    );
+    abstractController.action2 = new Action(
+      '/route2',
+      'POST',
+      (req, res) => {},
+      {},
+    );
+    abstractController.action3 = new Action(
+      '/route3/:id',
+      'GET',
+      (req, res) => {},
+      {},
+    );
     actionsCount = abstractController.getActions().length;
     expect(actionsCount).toEqual(3);
   });
@@ -45,8 +58,8 @@ describe.skip('actions gathering: ', () => {
   describe.skip.each([
     ['workers-controller'],
     ['client-controller'],
-    ['orders-controller']
-  ])(`%s `, (controllerFileName) => {
+    ['orders-controller'],
+  ])(`%s `, controllerFileName => {
     test(`shouldn't have 0 actions`, () => {
       const controllerType = require(`../../controllers/${controllerFileName}`);
       const controller = new controllerType();
@@ -54,7 +67,6 @@ describe.skip('actions gathering: ', () => {
       expect(actionsCount).not.toEqual(0);
     });
   });
-
 });
 
 // actions gathering check

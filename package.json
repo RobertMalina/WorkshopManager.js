@@ -11,7 +11,8 @@
   "main": "startup.js",
   "scripts": {
     "start": "nodemon startup.js",
-    "jest-tests": "jest",
+    "test-jest": "jest",
+    "test-mocha": "mocha --watch tests/mocha/**/*.js",
     "qunit-test.browser": "qunit"
   },
   "author": "",
@@ -37,6 +38,8 @@
     "@babel/preset-env": "^7.7.7",
     "ava": "^2.4.0",
     "babelify": "^10.0.0",
-    "jest": "^24.9.0"
+    "chai": "^4.2.0",
+    "jest": "^24.9.0",
+    "mocha": "^7.1.0"
   }
 }

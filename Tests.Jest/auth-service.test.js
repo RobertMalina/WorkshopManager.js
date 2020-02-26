@@ -7,31 +7,37 @@ beforeAll(() => {
   service = new s();
 });
 
-test.skip('Should return instance of AppUser', (done)=>{
+test('Should return instance of AppUser', done => {
   const postData = {
     Password: 'zaqwsx12',
-    Username: 'New User'
+    Username: 'New User',
   };
-  service.createVirtualUser(postData).then((user)=>{
-    expect(user).toBeInstanceOf(AppUser);
-    done();
-  }).catch((error) => {
-    console.log(error);
-    done(); 
-  }); 
+  service
+    .createVirtualUser(postData)
+    .then(user => {
+      expect(user).toBeInstanceOf(AppUser);
+      done();
+    })
+    .catch(error => {
+      console.log(error);
+      done();
+    });
 });
 
-test.skip('Should have PasswordHash property initialized', (done)=>{
+test('Should have PasswordHash property initialized', done => {
   const postData = {
     Password: 'zaqwsx12',
-    Username: 'New User'
+    Username: 'New User',
   };
-  service.createVirtualUser(postData).then((user)=>{
-    const hashedPswd = user.get('PasswordHash');
-    expect(hashedPswd.length).toBeGreaterThanOrEqual(0);
-    done();
-  }).catch((error) => { 
-    console.log(error);
-    done();
-  });
+  service
+    .createVirtualUser(postData)
+    .then(user => {
+      const hashedPswd = user.get('PasswordHash');
+      expect(hashedPswd.length).toBeGreaterThanOrEqual(0);
+      done();
+    })
+    .catch(error => {
+      console.log(error);
+      done();
+    });
 });
