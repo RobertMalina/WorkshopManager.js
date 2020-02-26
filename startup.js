@@ -1,17 +1,27 @@
 const AppServer = require('./server');
 
-const { OrderController, AuthController, ClientController, WorkerController, AppController }
- = require('./controllers/controllers.index');
-const { OrderService, WorkerService, ClientService, AuthService, TimeLogService  }
- = require('./services/services.index');
+const {
+  OrderController,
+  AuthController,
+  ClientController,
+  WorkerController,
+  AppController,
+} = require('./controllers/controllers.index');
+const {
+  OrderService,
+  WorkerService,
+  ClientService,
+  AuthService,
+  TimeLogService,
+} = require('./services/services.index');
 
- //const roleService = new RoleService();
+//const roleService = new RoleService();
 
 const authService = new AuthService();
 const authController = new AuthController(authService);
-const server = new AppServer ({
+const server = new AppServer({
   authService: authService,
-  port: '4210'
+  port: '4210',
 });
 
 //włączenie uwierzytelniania dostępu do api
@@ -33,16 +43,16 @@ const endpoints = [
   new OrderController(new OrderService(), new TimeLogService()),
   new ClientController(new ClientService()),
   new WorkerController(new WorkerService()),
-  new AppController()
 ];
 
 server.registerRoutes(endpoints);
 server.startOn('4210');
 
-if(process.argv.indexOf('with-cli') !== -1 ){
-  console.log('Server app instance was launched with a command line interface.')
+if (process.argv.indexOf('with-cli') !== -1) {
+  console.log(
+    'Server app instance was launched with a command line interface.',
+  );
   const AppCli = require('./cli/app');
   const cliInstance = new AppCli();
   cliInstance.run();
 }
-

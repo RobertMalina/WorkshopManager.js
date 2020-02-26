@@ -3,17 +3,18 @@ const { Action } = require('./base/action');
 const errorHandler = require('./base/error-handler');
 
 const WorkerController = function(/*workerService class*/ workerService) {
-  
-  Controller.call( this, {
+  Controller.call(this, {
     isApiController: true,
-    pluralize: true
+    pluralize: true,
   });
 
   const service = workerService;
 
-  this.getMechaniciansOfOrders = new Action('/engagedInOrders', 'POST',  
-    function( req, res ) {
-      const { ordersIds } = req.body;      
+  this.getMechaniciansOfOrders = new Action(
+    '/engagedInOrders',
+    'POST',
+    function(req, res) {
+      const { ordersIds } = req.body;
       res.setHeader('Content-Type', 'application/json');
       service
         .getWorkersOfOrders(ordersIds)
@@ -25,11 +26,13 @@ const WorkerController = function(/*workerService class*/ workerService) {
           errorHandler(err, res);
         });
     },
-    { authRequired: true, roles: ['admin'] }
+    { authRequired: true, roles: ['admin'] },
   );
 
-  this.getMechaniciansOfOrder = new Action('/engagedInOrder/:id', 'GET',  
-    function( req, res ) {
+  this.getMechaniciansOfOrder = new Action(
+    '/engagedInOrder/:id',
+    'GET',
+    function(req, res) {
       res.setHeader('Content-Type', 'application/json');
       const id = req.params.id;
       service
@@ -42,8 +45,15 @@ const WorkerController = function(/*workerService class*/ workerService) {
           errorHandler(err, res);
         });
     },
-    { authRequired: true, roles: ['admin'] }
+    { authRequired: true, roles: ['admin'] },
   );
 };
+
+WorkerController.prototype = Object.create(Controller.prototype);
+Object.defineProperty(WorkerController.prototype, 'constructor', {
+  value: WorkerController,
+  enumerable: false,
+  writable: true,
+});
 
 module.exports = WorkerController;

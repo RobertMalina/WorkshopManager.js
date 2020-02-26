@@ -5,21 +5,21 @@ const express = require('express');
 const path = require('path');
 const { AuthService } = require('./services/services.index');
 
-const AppServer = function(/* { 
+const AppServer = function(
+  /* { 
   port?: string, 
   authService?: AuthService
-}*/config) {
-
+}*/ config,
+) {
   config = config || {};
   const actions = [];
 
   const server = express();
   this.port = config.port || '4210';
-  if(!config.authService instanceof AuthService) {
+  if (!config.authService instanceof AuthService) {
     console.error('Received AuthService object has wrong type...');
     this.authService = null;
-  }
-  else {
+  } else {
     this.authService = config.authService || null;
   }
 
@@ -27,12 +27,13 @@ const AppServer = function(/* {
     if (this.authService !== null) {
       this.authService.setAuthentication({
         target: this,
-        provider: providerKey
+        provider: providerKey,
       });
       return true;
-    }
-    else {
-      console.error('AuthService is not provided to this instance of AppServer!');
+    } else {
+      console.error(
+        'AuthService is not provided to this instance of AppServer!',
+      );
       return false;
     }
   };
@@ -54,35 +55,44 @@ const AppServer = function(/* {
     console.log(`server is listening on port: ${this.port}`);
   };
 
-  this.enableSPA = function(){
+  this.enableSPA = function() {
     const Handlebars = require('express-handlebars');
     server.use((req, res) => {
-      if(req.originalUrl.indexOf('/app/') !== -1){
-        console.log('SPA mode active, layout change route detected. Redirrection to index.html file...')
-        res.sendFile(`${__dirname}/public/index.html`)
+      if (req.originalUrl.indexOf('/app/') !== -1) {
+        console.log(
+          'SPA mode active, layout change route detected. Redirrection to index.html file...',
+        );
+        res.sendFile(`${__dirname}/public/index.html`);
       }
     });
     server.set('view engine', 'hbs');
 
-    server.engine( 'hbs', Handlebars( {
-      extname: 'hbs',
-      defaultView: 'default',
-      layoutsDir: __dirname + '/public/views/pages/',
-      partialsDir: __dirname + '/public/views/partials/'
-    }));  
-  }
+    server.engine(
+      'hbs',
+      Handlebars({
+        extname: 'hbs',
+        defaultView: 'default',
+        layoutsDir: __dirname + '/public/views/pages/',
+        partialsDir: __dirname + '/public/views/partials/',
+      }),
+    );
+  };
 
-  this.enableJSONBodyParsing = function(){
+  this.enableJSONBodyParsing = function() {
     const bodyParser = require('body-parser');
-    server.use( bodyParser.json() );
-    server.use(bodyParser.urlencoded({
-      extended: true
-    }));
+    server.use(bodyParser.json());
+    server.use(
+      bodyParser.urlencoded({
+        extended: true,
+      }),
+    );
   };
 
   //@to override
   authHandlerStub = (req, res, next) => {
-    console.warn('Action that required authentication is invoked, but there is no auth-provider provided (default fake-provider is used)...')
+    console.warn(
+      'Action that required authentication is invoked, but there is no auth-provider provided (default fake-provider is used)...',
+    );
     next();
   };
 
@@ -91,34 +101,45 @@ const AppServer = function(/* {
   };
 
   //debug
-  this.setAuthenticateRoutine = (func) => {
+  this.setAuthenticateRoutine = func => {
     authenticate = func;
-  }
+  };
 
-  this.getActionByPath = (actionPath) => {
+  this.getActionByPath = actionPath => {
     return actions.find(a => a.path === actionPath);
-  }
+  };
 
   this.enableCORS = function(options) {
     options = options || {};
     server.use(CORS());
     server.use((req, res, next) => {
-      if(options.verbose){
+      if (options.verbose) {
         console.log(`Request processed in CORS aware mode`);
-      }   
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      }
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header(
+        'Access-Control-Allow-Methods',
+        'PUT, GET, POST, DELETE, OPTIONS',
+      );
+      res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept',
+      );
       next();
     });
-  }
+  };
 
-  this.registerRoutes = function(/*array of (instance of) Controller*/controllers) {
+  this.registerRoutes = function(
+    /*array of (instance of) Controller*/ controllers,
+  ) {
     const results = [];
     for (let i = 0; i < controllers.length; i++) {
       let controller = controllers[i];
-      if(controller instanceof Controller){
-        console.warn('One of passed routes provider is not instance of Controller, routes registration failed...');
+      if (!controller instanceof Controller) {
+        console.warn(
+          'One of passed routes provider is not instance of Controller, routes registration failed...',
+          controller,
+        );
         return null;
       }
 
@@ -133,11 +154,10 @@ const AppServer = function(/* {
       // });
 
       const actions = controller.getActions();
-      
+
       for (const key in actions) {
         let action = actions[key];
         if (checkAction(action).isOk) {
-
           if (action.authRequired) {
             server.use(action.route, authenticate);
           }
@@ -145,7 +165,7 @@ const AppServer = function(/* {
           action.httpVerb = action.httpVerb.toUpperCase();
           switch (action.httpVerb) {
             case 'GET': {
-              server.get(action.route, action.run);        
+              server.get(action.route, action.run);
               break;
             }
             case 'POST': {
@@ -159,17 +179,16 @@ const AppServer = function(/* {
             case 'DELETE': {
               server.delete(action.route, action.run);
               break;
-            }                       
+            }
             default: {
               break;
             }
           }
           results.push(action.asRegistrationResult());
           actions.push(action);
-        }
-        else{
+        } else {
           let errMsg = checkAction(action).msg;
-          results.push(action.asRegistrationResult({ errMsg:errMsg  }));
+          results.push(action.asRegistrationResult({ errMsg: errMsg }));
         }
       }
     }
@@ -177,22 +196,34 @@ const AppServer = function(/* {
     return results;
   };
 
-  const printRegisteredRoutes = function(/*array of { registered:bool, type:string, route: string }*/ registerResults ){
-    registerResults = registerResults.sort((a,b)=>{
-      if(a.registered) { return -1; }
-      if(a.registered && b.registered) { return 0; }
-      else { return 1; }
-    });
-    console.log('server registered endpoints:')
-    registerResults.forEach((action) => {
-      if(action.registered){
-        console.log(`${action.type.toUpperCase()} \t: ${action.route}${action.authRequired ? '\t(Secured)': ''}`)
+  const printRegisteredRoutes = function(
+    /*array of { registered:bool, type:string, route: string }*/ registerResults,
+  ) {
+    registerResults = registerResults.sort((a, b) => {
+      if (a.registered) {
+        return -1;
       }
-      else{
-        console.warn(`Some issues have been deteced while registration of the route: ${res.errMsg}`);
+      if (a.registered && b.registered) {
+        return 0;
+      } else {
+        return 1;
       }
     });
-  }
+    console.log('server registered endpoints:');
+    registerResults.forEach(action => {
+      if (action.registered) {
+        console.log(
+          `${action.type.toUpperCase()} \t: ${action.route}${
+            action.authRequired ? '\t(Secured)' : ''
+          }`,
+        );
+      } else {
+        console.warn(
+          `Some issues have been deteced while registration of the route: ${res.errMsg}`,
+        );
+      }
+    });
+  };
 
   onInit();
 };
