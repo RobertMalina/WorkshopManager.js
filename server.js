@@ -111,22 +111,24 @@ const AppServer = function(
 
   this.enableCORS = function(options) {
     options = options || {};
-    server.use(CORS());
-    server.use((req, res, next) => {
-      if (options.verbose) {
-        console.log(`Request processed in CORS aware mode`);
-      }
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header(
-        'Access-Control-Allow-Methods',
-        'PUT, GET, POST, DELETE, OPTIONS',
-      );
-      res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept',
-      );
-      next();
-    });
+
+    const configuration = require('./server.config');
+
+    const whitelist = configuration.CORS.allowedClients;
+
+    const corsConfig = {
+      origin: function(origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(
+            `Received request from untrusted origin (${origin}). Response blocked due to CORS policy.`,
+          );
+        }
+      },
+    };
+
+    server.use(CORS(corsConfig));
   };
 
   this.registerRoutes = function(
