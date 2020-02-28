@@ -3,6 +3,9 @@ const assert = require('assert');
 require('dotenv').config();
 
 const {
+  DEFAULT_SRV_PORT,
+  DEFAULT_SRV_DATA_FORMAT,
+
   DEV_SQLSERVER_USERNAME,
   DEV_SQLSERVER_USERPSWD,
   DEV_SQLSERVER_IP_ADDR,

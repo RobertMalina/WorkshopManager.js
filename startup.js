@@ -5,7 +5,6 @@ const {
   AuthController,
   ClientController,
   WorkerController,
-  AppController,
 } = require('./controllers/controllers.index');
 const {
   OrderService,
@@ -19,34 +18,22 @@ const {
 
 const authService = new AuthService();
 const authController = new AuthController(authService);
+
 const server = new AppServer({
   authService: authService,
+  authProviderKey: 'JWT',
   port: '4210',
+  dataFormat: 'JSON',
+  CORS: true,
+  endpoints: [
+    authController,
+    new OrderController(new OrderService(), new TimeLogService()),
+    new ClientController(new ClientService()),
+    new WorkerController(new WorkerService()),
+  ],
 });
 
-//włączenie uwierzytelniania dostępu do api
-// opcja oparta o Json Web Tokens
-server.enableAuthentication('JWT');
-// lub Passport-local:
-//server.enableAuthentication('Passport-local');
-
-server.enableJSONBodyParsing();
-
-//jeśli implementowana byłaby aplikacja kliencka (w obrębie tego projektu)
-//server.enableSPA();
-
-//Aby umożliwić żądania z aplikacji webowych
-server.enableCORS();
-
-const endpoints = [
-  authController,
-  new OrderController(new OrderService(), new TimeLogService()),
-  new ClientController(new ClientService()),
-  new WorkerController(new WorkerService()),
-];
-
-server.registerRoutes(endpoints);
-server.startOn('4210');
+server.start();
 
 if (process.argv.indexOf('with-cli') !== -1) {
   console.log(
