@@ -22,7 +22,7 @@ const routesHandler = server => ({
           if (action.authRequired) {
             server.instance.use(
               action.route,
-              server.authenticate ||
+              server.authenticationRoutine ||
                 function() {
                   console.warn('Authentication is not implemented');
                 },
