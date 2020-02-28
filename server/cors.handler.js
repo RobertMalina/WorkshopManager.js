@@ -10,7 +10,8 @@ const corsHandler = server => ({
           callback(null, true);
         } else {
           callback(
-            `Received request from untrusted origin (${origin}). Response blocked due to CORS policy.`,
+            `Received request from untrusted origin (${origin ||
+              '?'}). Response blocked due to CORS policy.`,
           );
         }
       },

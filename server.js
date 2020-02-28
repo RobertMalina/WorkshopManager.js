@@ -81,7 +81,7 @@ const AppServer = function(config) {
     server.dataFormat =
       config.dataFormat || process.env.DEFAULT_SRV_DATA_FORMAT;
 
-    server.CORS = config.CORS === false || true;
+    server.CORS = config.CORS === false ? config.CORS : true;
 
     server.instance.use(onRequestReceived);
     server.endpoints = config.endpoints;
