@@ -28,15 +28,31 @@ const OrderController = function(
     pluralize: true
   });
 
-  this.getSpentTimes = new Action('/spenttimes', 'POST', 
-  function ( req,res ) {
-    console.log(req.body);
-    
-    timeLogService
-      .getSpentTimeLogs(req.body)
-      .then(response => res.status(200).json(response))
-      .catch(err => errorHandler(err, res));
-  },
+  this.getSpentTimes = new Action(
+    '/spenttimes',
+    'POST',
+    function(req, res) {
+      console.log(req.body);
+
+      timeLogService
+        .getSpentTimeLogs(req.body)
+        .then(response => res.status(200).json(response))
+        .catch(err => errorHandler(err, res));
+    },
+    { authRequired: false },
+  );
+
+  this.getPagedOrders = new Action(
+    '/paged',
+    'POST',
+    function(req, res) {
+      ordersService
+        .fetchAsPageContent(req.body)
+        .then(result => res.status(200).json(result))
+        .catch(err => errorHandler(err, res));
+    },
+    { authRequired: true, roles: ['regular'] },
+  );
   
   /*
   
