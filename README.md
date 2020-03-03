@@ -57,21 +57,27 @@ module.exports = OrderController;
 
 ```
 
-And in startup.js file (boot script, server app entry point), api endpoints are instantiated and "registered" in express.js server instance (note: this is only a part of startup.js script):
+Then, in startup.js file (boot script, server app entry point), api endpoints are instantiated and "registered" in express.js server instance using constructor function (of "class" AppServer):
 
 ```js
-server.enableCORS();
+const authService = new AuthService();
+const authController = new AuthController(authService);
 
-const endpoints = [
-  authController,
-  new OrderController(new OrderService(), new TimeLogService()),
-  new ClientController(new ClientService()),
-  new WorkerController(new WorkerService()),
-  new AppController()
-];
+const server = new AppServer({
+  authService: authService,
+  authProviderKey: 'JWT',
+  port: '4210',
+  dataFormat: 'JSON',
+  CORS: true,
+  endpoints: [
+    authController,
+    new OrderController(new OrderService(), new TimeLogService()),
+    new ClientController(new ClientService()),
+    new WorkerController(new WorkerService()),
+  ],
+});
 
-server.registerRoutes(endpoints);
-server.startOn('4210');
+server.start();
 
 ```
 
@@ -83,4 +89,4 @@ And as a result, running Node.js server app produces following informative outpu
 
 - <b>Authentication server</b> - User system (db-structure purposed auth & authorization tasks only) is located at same database as bussines logic tables, so DAL module has access to User system data - and that way it provides an option to read user by identity and compare shipped password (from angular's app login page) with stored password hash. I hash password using Bcrypt with salting and then store it in database with user unique login (username). As an authorization medium I decided to use Json Web Token, signed with HS256 alghoritm. Implementation is ready to extract JWT token both from Authorization header and request body.
 
-- <b>Cli manager</b> - using <i>readline<i> package - I implemented simply CLI shell over server - <b>which is possible to invoke by using additional params in npm start command 'npm run with-cli'</b>. Cli app allows to change configuration - e.g. change database instance to which server application connects.
+- <b>Cli manager</b> - using <i>readline</i> package - I implemented simply CLI shell over server - <b>which is possible to invoke by using additional params in npm start command 'npm run with-cli'</b>. Cli app allows to change configuration - e.g. change database instance to which server application connects.
