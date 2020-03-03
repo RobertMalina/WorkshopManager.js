@@ -28,24 +28,18 @@ const OrderController = function(
     pluralize: true
   });
 
-  this.getSpentTimes = new Action(
-    '/spenttimes',
-    'POST',
-    function(req, res) {
-      console.log(req.body);
-
+  this.getSpentTimes = new Action('/spenttimes','POST',
+    (req, res) => {
       timeLogService
         .getSpentTimeLogs(req.body)
         .then(response => res.status(200).json(response))
         .catch(err => errorHandler(err, res));
     },
-    { authRequired: false },
+    { authRequired: true, roles: ['regular, supervisor'] },
   );
 
-  this.getPagedOrders = new Action(
-    '/paged',
-    'POST',
-    function(req, res) {
+  this.getPagedOrders = new Action('/paged','POST',
+    (req, res) => {
       ordersService
         .fetchAsPageContent(req.body)
         .then(result => res.status(200).json(result))
