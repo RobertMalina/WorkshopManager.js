@@ -14,8 +14,6 @@ const {
   TimeLogService,
 } = require('./services/services.index');
 
-//const roleService = new RoleService();
-
 const authService = new AuthService();
 const authController = new AuthController(authService);
 
@@ -24,7 +22,7 @@ const server = new AppServer({
   authProviderKey: 'JWT',
   port: '4210',
   dataFormat: 'JSON',
-  CORS: false,
+  CORS: true,
   endpoints: [
     authController,
     new OrderController(new OrderService(), new TimeLogService()),

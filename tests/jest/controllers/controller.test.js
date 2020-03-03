@@ -4,12 +4,11 @@ const ClientController = require('../../controllers/client-controller');
 const Controller = require('../../controllers/base/controller');
 const { Action } = require('../../controllers/base/action');
 
-describe('routes root part pluralization', () => {
+describe('Routes root part pluralization', () => {
   let ordersController, rootPart;
 
   beforeEach(() => {
     ordersController = new OrderController();
-    console.log('orders controller created...');
   });
 
   test('by default should be supported', () => {
