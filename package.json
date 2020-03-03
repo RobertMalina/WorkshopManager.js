@@ -1,11 +1,5 @@
 {
   "name": "kingslandingproject",
-  "jest": {
-    "verbose": true,
-    "testMatch": [
-      "**/Tests.Jest/**/*.[jt]s?(x)"
-    ]
-  },
   "version": "1.0.0",
   "description": "",
   "main": "startup.js",
