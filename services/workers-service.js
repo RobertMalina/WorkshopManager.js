@@ -1,59 +1,64 @@
 const DbAccess = require('../DAL/db-access');
 const QueryStore = require('../DAL/query-store');
-const { flatten } = require('../DAL/Models/entity')
+const { flatten } = require('../DAL/Models/entity');
 
 const WorkersService = function() {
-  
-  const db = new DbAccess();
+  const db = new DbAccess(require('../server.config').getDbSettings('-dev'));
   const queryStore = new QueryStore();
 
   const sqlHandler = require('mssql');
 
-  this.getWorkersOfOrder = function(orderId){
+  this.getWorkersOfOrder = function(orderId) {
     const query = queryStore.get('selectWorkersOfOrder');
-     return new Promise((resolve, reject) => {
-      db.run(query,[{
-            argName: 'orderId',
-            type: sqlHandler.BigInt,
-            value: orderId
-          }])
-          .then((response) => {     
+    return new Promise((resolve, reject) => {
+      db.run(query, [
+        {
+          argName: 'orderId',
+          type: sqlHandler.BigInt,
+          value: orderId,
+        },
+      ])
+        .then(response => {
           resolve({
             mechanicians: flatten(response, {
-              modelsName: 'mechanicians'
-            })
+              modelsName: 'mechanicians',
+            }),
           });
-      }).catch(err => {
-        reject(err);
-      });
-    });     
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
   };
 
-  this.getWorkersOfOrders = function(ordersIds) {   
+  this.getWorkersOfOrders = function(ordersIds) {
     const readPromises = [];
     const query = queryStore.get('selectWorkersOfOrder');
 
-    for (let i =0; i < ordersIds.length; i++){
-        readPromises.push( new Promise ((resolve, reject) => {
-          db.run( query,
-          [{
-            argName: 'orderId',
-            type: sqlHandler.BigInt,
-            value: ordersIds[i]
-          }])
-          .then(response => {
-            if(response.recordset) {
-              resolve({
-                orderId: ordersIds[i],
-                mechanicians: flatten(response)
-              });
-            }
-          })
-          .catch((error)=> {
-          console.error(error);
-          reject(error);
-        });
-      }));
+    for (let i = 0; i < ordersIds.length; i++) {
+      readPromises.push(
+        new Promise((resolve, reject) => {
+          db.run(query, [
+            {
+              argName: 'orderId',
+              type: sqlHandler.BigInt,
+              value: ordersIds[i],
+            },
+          ])
+            .then(response => {
+              if (response.recordset) {
+                resolve({
+                  orderId: ordersIds[i],
+                  mechanicians: flatten(response),
+                });
+              }
+            })
+            .catch(error => {
+              console.error(error);
+              reject(error);
+            });
+        }),
+      );
     }
     return Promise.all(readPromises);
   };
