@@ -1,23 +1,23 @@
 const { isString } = require('../shared/tools');
 
-const QueryStore = function () {
+const QueryStore = function() {
   const sqlQueries = {
     //[AppUser]
     selectAppUser: function(args) {
-      if(!args.identifier) {
+      if (!args.identifier) {
         console.error('Parametr identifier jest wymagany!');
         return '';
       }
-      let wherePart = isString(args.identifier) ?
-      `[Username] LIKE '%${args.identifier}%'`:
-      `Id = ${args.identifier}`;
+      let wherePart = isString(args.identifier)
+        ? `[Username] LIKE '%${args.identifier}%'`
+        : `Id = ${args.identifier}`;
 
       return `select top 1 * from [AppUser] where ${wherePart}`;
     },
 
     //[AppRole]
     selectRolesByNames: function(args) {
-      if(!Array.isArray(args.roleNames)) {
+      if (!Array.isArray(args.roleNames)) {
         console.error('Parametr roleNames musi być tablicą string');
         return '';
       }
@@ -26,21 +26,32 @@ const QueryStore = function () {
       const roleQueries = [];
 
       assertUnique.forEach(roleName => {
-        roleQueries.push(`SELECT  r.[Id] as 'id', r.[Name] as 'name' FROM [dbo].[AppRole] r WHERE r.[Name] = '${roleName}';`) ;
+        roleQueries.push(
+          `SELECT  r.[Id] as 'id', r.[Name] as 'name' FROM [dbo].[AppRole] r WHERE r.[Name] = '${roleName}';`,
+        );
       });
       return roleQueries.join('\n');
     },
     selectRolesOfUserWithId: function(args) {
-      if(!args.userId) {
+      if (!args.userId) {
         console.error('Parametr userId jest wymagany!');
         return '';
       }
       return `SELECT * FROM [dbo].[GetRolesOfUserWithId](${args.userId})`;
     },
 
+    // [Client]
+    deleteClient: function(args) {
+      const { phoneNumber } = args;
+      if (!phoneNumber) {
+        throw new Error('Parametr phoneNumber jest wymagany!');
+      }
+      return `DELETE FROM [dbo].[Client] WHERE [PhoneNumber] = '${phoneNumber}';`;
+    },
+
     //[Order]
     selectOrderWithId: function(args) {
-      if(!args.id){
+      if (!args.id) {
         console.error('Parametr Id jest wymagany!');
         return '';
       }
@@ -50,12 +61,12 @@ const QueryStore = function () {
       return `EXEC GetNonArchivedOrdersData`;
     },
     selectOrdersCount: function(args) {
-      if(!args.statusFilters) {
+      if (!args.statusFilters) {
         args.statusFilters = {
           registered: true,
           inProgress: true,
-          finished: true
-        }
+          finished: true,
+        };
       }
       return `SELECT COUNT (O.Id) AS ordersCount from OrdersRegardingStatuses(
         ${args.statusFilters.registered ? '1' : '0'},
@@ -64,15 +75,15 @@ const QueryStore = function () {
         ) O`;
     },
     selectOrdersForPagedList: function(args) {
-      if(!args){
-        throw new Error('args param is required!')
+      if (!args) {
+        throw new Error('args param is required!');
       }
-      if(!args.statusFilters) {
+      if (!args.statusFilters) {
         args.statusFilters = {
           registered: true,
           inProgress: true,
-          finished: true
-        }
+          finished: true,
+        };
       }
       args.page = args.page || 0;
       args.itemsOnPage = args.itemsOnPage || 5;
@@ -82,8 +93,64 @@ const QueryStore = function () {
         ${args.statusFilters.registered ? '1' : '0'},
         ${args.statusFilters.inProgress ? '1' : '0'},
         ${args.statusFilters.finished ? '1' : '0'}   
-        );`
+        );`;
     },
+
+    deleteOrder: function(id) {
+      if (id === undefined) {
+        throw new Error('argument with parameters is required!');
+      }
+      return `DELETE FROM [dbo].[Order] WHERE [Id]=${id}`;
+    },
+
+    registerOrder: function({
+      firstName,
+      lastName,
+      phoneNumber,
+      title,
+      vehicleDescription,
+      description,
+    }) {
+      if (arguments.length === 0) {
+        throw new Error('argument with parameters is required!');
+      }
+      const requiredParams = [
+        'firstName',
+        'lastName',
+        'phoneNumber',
+        'title',
+        'vehicleDescription',
+        'description',
+      ];
+
+      const args = arguments[0];
+
+      const missedParams = [];
+      for (let param of requiredParams) {
+        if (!args.hasOwnProperty(param)) {
+          missedParams.push(`${param} is required`);
+        }
+      }
+      if (missedParams.length) {
+        throw new Error(
+          missedParams.join(', ') + ', order register query terminated...',
+        );
+      }
+
+      return `DECLARE @result VARCHAR(1024);
+ 
+      EXEC [spRegisterOrder] 
+      @FirstName='${firstName}',
+      @LastName='${lastName}',
+      @PhoneNumber='${phoneNumber}', 
+      @Title='${title}', 
+      @VehicleDescription='${vehicleDescription}',
+      @Description='${description}',
+      @Response = @result OUTPUT;
+       
+      SELECT @result AS 'result';`;
+    },
+
     //[Worker]
     selectWorkersOfOrder: function(args) {
       return `
@@ -96,19 +163,20 @@ const QueryStore = function () {
 
     // [TimeLog]
     selectSpentTimes: function(args) {
-      if(!args){
-        throw new Error('args param is required!')
+      if (!args) {
+        throw new Error('args param is required!');
       }
-      if(!Array.isArray(args.ordersIds)){
-        throw new Error(`args.ordersIds param isn't an array!`)
+      if (!Array.isArray(args.ordersIds)) {
+        throw new Error(`args.ordersIds param isn't an array!`);
       }
-      if(!args.ordersIds.every(n => !isNaN(parseInt(n))) ) {
-        throw new Error(`some of passed orders ids are not numbers...`)
+      if (!args.ordersIds.every(n => !isNaN(parseInt(n)))) {
+        throw new Error(`some of passed orders ids are not numbers...`);
       }
 
-      const queryStart = 'SELECT COUNT(tl.[LogTime]) as spentTime, tl.[OrderId] as orderId FROM [dbo].[TimeLog] tl';
+      const queryStart =
+        'SELECT COUNT(tl.[LogTime]) as spentTime, tl.[OrderId] as orderId FROM [dbo].[TimeLog] tl';
       const whereParts = [];
-      const queryEnd = 'GROUP BY (tl.[OrderId]);'
+      const queryEnd = 'GROUP BY (tl.[OrderId]);';
 
       // sample result (when args.ordersIds = [1,3,4,6,7])
       // `SELECT COUNT(tl.[LogTime]) as spentTime, tl.[OrderId] as orderId FROM [dbo].[TimeLog] tl
@@ -119,27 +187,28 @@ const QueryStore = function () {
       // OR tl.[OrderId] = 7
       // GROUP BY (tl.[OrderId]);`
 
-      args.ordersIds.forEach( (id, index) => {        
-        if(index === 0){
+      args.ordersIds.forEach((id, index) => {
+        if (index === 0) {
           whereParts.push(`WHERE tl.[OrderId] = ${id}`);
         } else {
           whereParts.push(`OR tl.[OrderId] = ${id}`);
         }
       });
-      
-      return `${queryStart}\n${whereParts.join('\n')} ${queryEnd}`; ;
-    }
 
-  }
+      return `${queryStart}\n${whereParts.join('\n')} ${queryEnd}`;
+    },
+  };
 
   //zwraca kwerende SQL zadeklarowaną w parametrze sqlQueries
-  this.get = function(queryKey /*string*/, args /* number || string */){
+  this.get = function(queryKey /*string*/, args /* number || string */) {
     const target = sqlQueries[queryKey];
-    if(!target) {
-      console.error(`Brak funkcji zwracającej kwerende SQL o nazwie: ${queryKey}`);
+    if (!target) {
+      console.error(
+        `Brak funkcji zwracającej kwerende SQL o nazwie: ${queryKey}`,
+      );
       return null;
     }
     return target(args);
-  }
-}
+  };
+};
 module.exports = QueryStore;

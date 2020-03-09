@@ -1,8 +1,8 @@
-const OrderController = require('../../controllers/orders-controller');
-const WorkerController = require('../../controllers/workers-controller');
-const ClientController = require('../../controllers/client-controller');
-const Controller = require('../../controllers/base/controller');
-const { Action } = require('../../controllers/base/action');
+const OrderController = require('../../../controllers/orders-controller');
+const WorkerController = require('../../../controllers/workers-controller');
+const ClientController = require('../../../controllers/client-controller');
+const Controller = require('../../../controllers/base/controller');
+const { Action } = require('../../../controllers/base/action');
 
 describe('Routes root part pluralization', () => {
   let ordersController, rootPart;
@@ -54,7 +54,7 @@ describe('actions gathering: ', () => {
     expect(actionsCount).toEqual(3);
   });
 
-  describe.skip.each([
+  describe.each([
     ['workers-controller'],
     ['client-controller'],
     ['orders-controller'],

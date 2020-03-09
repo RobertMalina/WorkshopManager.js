@@ -1,10 +1,10 @@
-const reduceObj = (obj, transformation, initial) => {
+const reduceObj = (source, transformation, initial) => {
   if (typeof transformation !== 'function')
     new Error('reduceObj: transformation function is not provided...');
   let resObj = initial || {};
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      resObj = transformation(resObj, obj[key], key);
+  for (let key in source) {
+    if (source.hasOwnProperty(key)) {
+      resObj = transformation(resObj, source[key], key);
     }
   }
   return resObj;
@@ -28,8 +28,8 @@ function invariant(key, action) {
 }
 
 module.exports = {
-  reduceObj: reduceObj,
-  isString: isString,
-  typeCheck: typeCheck,
-  invariant: invariant,
+  reduceObj,
+  isString,
+  typeCheck,
+  invariant,
 };

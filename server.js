@@ -12,7 +12,6 @@ const AppServer = function(config) {
         this.instance.listen(this.port);
         console.log(`server is listening on port: ${this.port}`);
       },
-
       instance: express(),
       actions: [],
       endpoints: null,

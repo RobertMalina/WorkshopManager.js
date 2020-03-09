@@ -1,4 +1,8 @@
 module.exports = {
   verbose: true,
-  testMatch: ['**/tests/jest/**/*.[jt]s?(x)'],
+  // normalna konfiguracja
+  // testMatch: ['**/tests/jest/**/*.[jt]s?(x)'],
+
+  // tylko testy związane z pracą mgr
+  testMatch: ['**/tests/jest/master-thesis/**/*.[jt]s?(x)'],
 };

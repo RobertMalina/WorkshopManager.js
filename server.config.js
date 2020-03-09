@@ -43,20 +43,47 @@ if (process.env.DEV_DB_NAME___NEW) {
   DEV_DB_NAME = process.env.DEV_DB_NAME___NEW;
 }
 
-function getConnectionSettings(/*string [-dev || -test]*/ dbDest) {
-  const newDbName = process.env.DEV_DB_NAME___NEW,
-    newServerName = process.env.DEV_SQLSERVER_IP_ADDR___NEW;
-  return {
-    user: DEV_SQLSERVER_USERNAME,
-    password: DEV_SQLSERVER_USERPSWD,
-    server: newServerName ? newServerName : DEV_SQLSERVER_IP_ADDR,
-    database: newDbName ? newDbName : DEV_DB_NAME,
-    pool: {
-      max: 15,
-      min: 10,
-      idleTimeoutMillis: 3000,
-    },
-  };
+const dbModes = {
+  DEVELOPMENT: '-dev',
+  TEST: '-test',
+  PRODUCTION: '-prod',
+};
+Object.freeze(dbModes);
+
+const dbSection = {
+  defaultPool: {
+    max: 15,
+    min: 10,
+    idleTimeoutMillis: 3000,
+  },
+};
+
+function getDbSettings(dbMode) {
+  switch (dbMode) {
+    case dbModes.DEVELOPMENT:
+      const newDbName = process.env.DEV_DB_NAME___NEW,
+        newServerName = process.env.DEV_SQLSERVER_IP_ADDR___NEW;
+      return {
+        user: DEV_SQLSERVER_USERNAME,
+        password: DEV_SQLSERVER_USERPSWD,
+        server: newServerName ? newServerName : DEV_SQLSERVER_IP_ADDR,
+        database: newDbName ? newDbName : DEV_DB_NAME,
+        pool: dbSection.defaultPool,
+      };
+    case dbModes.TEST:
+      return {
+        user: TEST_SQLSERVER_USERNAME,
+        password: TEST_SQLSERVER_USERPSWD,
+        server: TEST_SQLSERVER_IP_ADDR,
+        database: TEST_DB_NAME,
+        pool: dbSection.defaultPool,
+      };
+    case dbModes['-prod']:
+      break;
+
+    default:
+      break;
+  }
 }
 
 // for the sake of CORS-aware communication
@@ -65,31 +92,8 @@ const allowedClients = Object.keys(process.env)
   .map(originKey => process.env[originKey]);
 
 module.exports = {
-  dbDynamic: getConnectionSettings,
-  db: {
-    user: DEV_SQLSERVER_USERNAME,
-    password: DEV_SQLSERVER_USERPSWD,
-    server: DEV_SQLSERVER_IP_ADDR___NEW
-      ? DEV_SQLSERVER_IP_ADDR___NEW
-      : DEV_SQLSERVER_IP_ADDR,
-    database: DEV_DB_NAME,
-    pool: {
-      max: 15,
-      min: 10,
-      idleTimeoutMillis: 3000,
-    },
-  },
-  dbTest: {
-    user: TEST_SQLSERVER_USERNAME,
-    password: TEST_SQLSERVER_USERPSWD,
-    server: TEST_SQLSERVER_IP_ADDR,
-    database: TEST_DB_NAME,
-    pool: {
-      max: 15,
-      min: 10,
-      idleTimeoutMillis: 3000,
-    },
-  },
+  getDbSettings: getDbSettings,
+  dbModes: dbModes,
   CORS: {
     allowedClients: allowedClients,
   },

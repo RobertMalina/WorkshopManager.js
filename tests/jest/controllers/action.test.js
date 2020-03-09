@@ -1,4 +1,4 @@
-const { Action } = require('../../controllers/base/action');
+const { Action } = require('../../../controllers/base/action');
 
 let action1, action2, action3;
 
@@ -15,7 +15,7 @@ describe('setAsRouteOf method', () => {
     'when passed action with path: %s and %s, should return route that contains',
     (actionPath, controllerFileName, action, expectedPart) => {
       test(`${expectedPart}`, () => {
-        const controllerType = require(`../../controllers/${controllerFileName}`);
+        const controllerType = require(`../../../controllers/${controllerFileName}`);
         const controller = new controllerType();
         controller.pluralize = true;
         action.setAsRouteOf(controller);

@@ -1,6 +1,6 @@
-const AppUser = require('../../DAL/AuthModels/AppUser');
+const AppUser = require('../../../DAL/AuthModels/AppUser');
 const Sql = require('mssql');
-const QueryString = require('../../DAL/db-query-string');
+const QueryString = require('../../../DAL/db-query-string');
 
 let user;
 
@@ -25,6 +25,12 @@ describe('AppUser EntityModel tests', () => {
         type: Sql.BigInt,
         value: '',
         primary: true,
+        skipInsert: true,
+      },
+      Password: {
+        temporary: true,
+        skipInsert: true,
+        value: '',
       },
       Username: {
         type: Sql.NVarChar(128),
@@ -33,6 +39,10 @@ describe('AppUser EntityModel tests', () => {
       PasswordHash: {
         type: Sql.NVarChar(64),
         value: '2d928568ce17d1485f6d2c48bce9af5648c59dea',
+      },
+      Roles: {
+        temporary: true,
+        skipInsert: true,
       },
     });
   });

@@ -1,4 +1,4 @@
-const { reduceObj } = require('../../shared/tools');
+const { reduceObj } = require('../../../shared/tools');
 
 describe('reduceObj should return', () => {
   const payload = {

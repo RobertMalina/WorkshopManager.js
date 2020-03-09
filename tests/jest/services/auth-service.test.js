@@ -1,10 +1,10 @@
-const AuthService = require('../services/auth/auth-service');
-const AppUser = require('../DAL/AuthModels/AppUser');
+const AuthService = require('../../../services/auth/auth-service');
+const AppUser = require('../../../DAL/AuthModels/AppUser');
 
 let service;
 
 beforeAll(() => {
-  service = new s();
+  service = new AuthService();
 });
 
 test('Should return instance of AppUser', done => {

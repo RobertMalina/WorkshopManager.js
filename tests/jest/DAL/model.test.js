@@ -1,4 +1,8 @@
-const { Model, AppUser, AppUserToAppRole } = require('../../DAL/DAL.index.js');
+const {
+  Model,
+  AppUser,
+  AppUserToAppRole,
+} = require('../../../DAL/DAL.index.js');
 
 describe('AppUser:Model inheritance test', () => {
   const user = new AppUser();

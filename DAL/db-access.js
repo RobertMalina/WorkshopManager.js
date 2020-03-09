@@ -1,9 +1,8 @@
 const QueryString = require('./db-query-string');
 const { isModel } = require('../DAL/DAL.index');
 
-const DbAccess = function() {
+const DbAccess = function(connectionSettings) {
   const sql = require('mssql');
-  const configuration = require('../server.config');
 
   //-dev (for development database) || -test (for test database)
   this.target = '-dev';
@@ -134,8 +133,7 @@ request.bulk(table, (err, result) => {
 
   this.connectAndRun = ({ asyncAction }) => {
     return new Promise((resolve, reject) => {
-      const connSettings = configuration.dbDynamic(this.target || '-dev');
-      sql.connect(connSettings, err => {
+      sql.connect(connectionSettings, err => {
         if (err) {
           console.error('db-connection error', err);
           reject(err);
@@ -149,8 +147,7 @@ request.bulk(table, (err, result) => {
 
   this.run = function(sqlStatement, columnDatas) {
     return new Promise(function(resolve, reject) {
-      const connSettings = configuration.dbDynamic(this.target || '-dev');
-      sql.connect(connSettings, function(err) {
+      sql.connect(connectionSettings, function(err) {
         if (err) {
           console.log(err);
           return;
