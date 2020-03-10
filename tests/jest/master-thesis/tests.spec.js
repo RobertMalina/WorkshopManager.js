@@ -10,6 +10,10 @@ beforeEach(() => {
   session.log(process.memoryUsage()).in(units.MB, 2);
 });
 
+afterAll(() => {
+  session.summarize();
+});
+
 describe(`Shared tools tests`, () => {
   describe('reduceObj function:', () => {
     let transformation, inputData, expectedData, output;
@@ -112,7 +116,6 @@ describe(`QueryStore (sql queries parser) tests`, () => {
     });
 
     const expectedQuery = `DECLARE @result VARCHAR(1024);
-
       EXEC [spRegisterOrder] 
       @FirstName='${registerParams.firstName}',
       @LastName='${registerParams.lastName}',
@@ -138,6 +141,7 @@ describe(`QueryStore (sql queries parser) tests`, () => {
   });
 });
 
+const DbAccess = require('../../../DAL/db-access');
 const { getDbSettings, dbModes } = require('../../../server.config');
 const OrderService = require('../../../services/order-service');
 const ClientService = require('../../../services/client-service');
@@ -162,10 +166,42 @@ describe(`(async) Database integration tests`, () => {
 
   afterAll(() => {
     if (orderId) {
-      console.log('TEST-db cleanup');
-      const clientService = new ClientService(getDbSettings(dbModes.TEST));
-      orderService.deleteOrder(orderId);
-      clientService.deleteClient(phoneNumber);
+      const db = new DbAccess(getDbSettings(dbModes.TEST));
+      const cleanUpQuery = `
+      DECLARE @PhoneNumber CHAR(10) = '${phoneNumber}';
+      DECLARE @OrderId BIGINT;
+      SET @OrderId = (SELECT MAX([Id]) FROM [dbo].[Order]);
+      DELETE FROM [dbo].[Order]  WHERE Id = @OrderId;
+      DELETE FROM [dbo].[Client] WHERE [PhoneNumber] = @PhoneNumber;
+      `;
+      db.run(cleanUpQuery);
     }
+  });
+});
+
+const AuthService = require('../../../services/auth/auth-service');
+
+describe('User System features test', () => {
+  let authService = new AuthService(getDbSettings(dbModes.TEST));
+
+  describe('(async) hashPassword method', () => {
+    const password = 'zaq12wsx';
+    let hashed;
+
+    test('returns anything', done => {
+      authService.usersSystemApi.hashPassword(password).then(result => {
+        hashed = result;
+        expect(hashed).toBeTruthy();
+        done();
+      });
+    });
+
+    test('returns string that is likely valid hash (has considerable length)', done => {
+      authService.usersSystemApi.hashPassword(password).then(result => {
+        hashed = result;
+        expect(hashed.length).toBeGreaterThan(20);
+        done();
+      });
+    });
   });
 });
