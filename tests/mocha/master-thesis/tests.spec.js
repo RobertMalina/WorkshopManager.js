@@ -1,3 +1,8 @@
+const expect = require('chai').expect;
+const should = require('chai').should();
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+
 const { reduceObj } = require('../../../shared/tools');
 const {
   units,
@@ -6,11 +11,11 @@ const {
 
 const session = memoryDiagnostics.session();
 
-beforeEach(() => {
+beforeEach('Memory usage logging', () => {
   session.log(process.memoryUsage()).in(units.MB, 2);
 });
 
-afterAll(() => {
+after('Memory usage summarize.', () => {
   session.summarize();
 });
 
@@ -18,7 +23,7 @@ describe(`Shared tools tests`, () => {
   describe('reduceObj function:', () => {
     let transformation, inputData, expectedData, output;
 
-    beforeAll(() => {
+    before(() => {
       transformation = (data, val, key) => {
         if (typeof val !== 'function' && key !== 'password') data[key] = val;
         return data;
@@ -46,11 +51,11 @@ describe(`Shared tools tests`, () => {
       output = reduceObj(inputData, transformation, {});
     });
 
-    test('returns object without function-members', () => {
-      expect(output).toEqual(expectedData);
+    it('returns object without function-members', () => {
+      expect(output).to.eql(expectedData);
     });
-    test('returns object without password', () => {
-      expect(output).toEqual(expectedData);
+    it('returns object without password', () => {
+      output.should.eql(expectedData);
     });
   });
 });
@@ -58,21 +63,23 @@ describe(`Shared tools tests`, () => {
 const OrderController = require('../../../controllers/orders-controller');
 const { Action } = require('../../../controllers/base/action');
 
+chai.use(require('chai-match')); // -> aby możliwe było użycie "to.match"
+
 describe(`Controller Action object tests`, () => {
   describe('setAsRouteOf method:', () => {
     let controller, action;
 
-    beforeAll(() => {
+    before(() => {
       action = new Action('/count', 'GET', () => {}, {});
     });
 
-    test('returns correct path when belongs to OrderController', () => {
+    it('returns correct path when belongs to OrderController', () => {
       controller = new OrderController({}, {});
       action.setAsRouteOf(controller);
-      expect(action.route).toEqual('/api/orders/count');
+      expect(action.route).to.equal('/api/orders/count');
     });
 
-    test('returns non-api path', () => {
+    it('returns non-api path', () => {
       controller = new OrderController(
         {},
         {},
@@ -82,10 +89,10 @@ describe(`Controller Action object tests`, () => {
         },
       );
       action.setAsRouteOf(controller);
-      expect(action.route).toEqual('/orders/count');
+      action.route.should.equal('/orders/count');
     });
 
-    test('returns "unpluralized" path', () => {
+    it('returns "unpluralized" path', () => {
       controller = new OrderController(
         {},
         {},
@@ -95,7 +102,7 @@ describe(`Controller Action object tests`, () => {
         },
       );
       action.setAsRouteOf(controller);
-      expect(action.route).toEqual('/api/order/count');
+      expect(action.route).to.be.equal('/api/order/count');
     });
   });
 });
@@ -115,18 +122,18 @@ describe(`QueryStore (sql queries parser) tests`, () => {
   let queryStore = new QueryStore();
 
   describe('Order register-query parser', () => {
-    test('should throw error when no args are provided', () => {
+    it('should throw error when no args are provided', () => {
       expect(() => {
         queryStore.get('registerOrder');
-      }).toThrowError(
+      }).to.throw(
         "Cannot destructure property `firstName` of 'undefined' or 'null'",
       );
     });
 
-    test('should throw error when phoneNumber and vehicleDescription is not provided', () => {
+    it('should throw error when phoneNumber and vehicleDescription is not provided', () => {
       expect(() => {
         queryStore.get('registerOrder', registerParams);
-      }).toThrowError(
+      }).to.throw(
         `phoneNumber is required, vehicleDescription is required, order register query terminated...`,
       );
     });
@@ -143,16 +150,15 @@ describe(`QueryStore (sql queries parser) tests`, () => {
       
       SELECT @result AS 'result';`.replace(/[\s]/g, '');
 
-    test('should return expected query', () => {
-      expect(
-        queryStore
-          .get('registerOrder', {
-            phoneNumber,
-            vehicleDescription,
-            ...registerParams,
-          })
-          .replace(/[\s]/g, ''),
-      ).toEqual(expectedQuery);
+    it('should return expected query', () => {
+      const query = queryStore
+        .get('registerOrder', {
+          phoneNumber,
+          vehicleDescription,
+          ...registerParams,
+        })
+        .replace(/[\s]/g, '');
+      query.should.equal(expectedQuery);
     });
   });
 });
@@ -162,9 +168,14 @@ const { getDbSettings, dbModes } = require('../../../server.config');
 const OrderService = require('../../../services/order-service');
 const ClientService = require('../../../services/client-service');
 
+chai.use(chaiAsPromised).should();
+
 describe(`(async) Database integration tests`, () => {
   let orderId;
-  test('register method should return new order Id', done => {
+
+  //loginController.isAuthorizedPromise('abc123').should.eventually.be.true;
+
+  it('register method should return new order Id', () => {
     const orderService = new OrderService(getDbSettings(dbModes.TEST));
     orderService
       .registerOrder({
@@ -172,15 +183,10 @@ describe(`(async) Database integration tests`, () => {
         vehicleDescription,
         ...registerParams,
       })
-      .then(response => {
-        orderId = response;
-        expect(response).toBeGreaterThan(0);
-        done();
-      })
-      .catch(error => done(error));
+      .should.eventually.be.greaterThan(0);
   });
 
-  afterAll(() => {
+  after('test database changes rollback', () => {
     if (orderId) {
       const db = new DbAccess(getDbSettings(dbModes.TEST));
       const cleanUpQuery = `
@@ -204,20 +210,16 @@ describe('User System features test', () => {
     const password = 'zaq12wsx';
     let hashed;
 
-    test('returns anything', done => {
-      authService.usersSystemApi.hashPassword(password).then(result => {
-        hashed = result;
-        expect(hashed).toBeTruthy();
-        done();
-      });
+    it('returns anything', () => {
+      authService.usersSystemApi
+        .hashPassword(password)
+        .should.eventually.not.eql(undefined);
     });
 
-    test('returns string that is likely valid hash (has considerable length)', done => {
-      authService.usersSystemApi.hashPassword(password).then(result => {
-        hashed = result;
-        expect(hashed.length).toBeGreaterThan(20);
-        done();
-      });
+    it('returns string that is likely valid hash (has considerable length)', () => {
+      return expect(authService.usersSystemApi.hashPassword(password))
+        .to.eventually.have.property('length')
+        .greaterThan(20);
     });
   });
 });

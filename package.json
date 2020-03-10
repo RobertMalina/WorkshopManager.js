@@ -33,6 +33,9 @@
     "ava": "^2.4.0",
     "babelify": "^10.0.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-match": "^1.1.1",
+    "jasmine": "^3.5.0",
     "jest": "^24.9.0",
     "mocha": "^7.1.0"
   }

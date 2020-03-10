@@ -46,10 +46,10 @@ describe(`Shared tools tests`, () => {
       output = reduceObj(inputData, transformation, {});
     });
 
-    test('returns object without function-members', () => {
+    it('returns object without function-members', () => {
       expect(output).toEqual(expectedData);
     });
-    test('returns object without password', () => {
+    it('returns object without password', () => {
       expect(output).toEqual(expectedData);
     });
   });
@@ -66,13 +66,13 @@ describe(`Controller Action object tests`, () => {
       action = new Action('/count', 'GET', () => {}, {});
     });
 
-    test('returns correct path when belongs to OrderController', () => {
+    it('returns correct path when belongs to OrderController', () => {
       controller = new OrderController({}, {});
       action.setAsRouteOf(controller);
       expect(action.route).toEqual('/api/orders/count');
     });
 
-    test('returns non-api path', () => {
+    it('returns non-api path', () => {
       controller = new OrderController(
         {},
         {},
@@ -85,7 +85,7 @@ describe(`Controller Action object tests`, () => {
       expect(action.route).toEqual('/orders/count');
     });
 
-    test('returns "unpluralized" path', () => {
+    it('returns "unpluralized" path', () => {
       controller = new OrderController(
         {},
         {},
@@ -115,7 +115,7 @@ describe(`QueryStore (sql queries parser) tests`, () => {
   let queryStore = new QueryStore();
 
   describe('Order register-query parser', () => {
-    test('should throw error when no args are provided', () => {
+    it('should throw error when no args are provided', () => {
       expect(() => {
         queryStore.get('registerOrder');
       }).toThrowError(
@@ -123,7 +123,7 @@ describe(`QueryStore (sql queries parser) tests`, () => {
       );
     });
 
-    test('should throw error when phoneNumber and vehicleDescription is not provided', () => {
+    it('should throw error when phoneNumber and vehicleDescription is not provided', () => {
       expect(() => {
         queryStore.get('registerOrder', registerParams);
       }).toThrowError(
@@ -143,7 +143,7 @@ describe(`QueryStore (sql queries parser) tests`, () => {
       
       SELECT @result AS 'result';`.replace(/[\s]/g, '');
 
-    test('should return expected query', () => {
+    it('should return expected query', () => {
       expect(
         queryStore
           .get('registerOrder', {
@@ -164,7 +164,7 @@ const ClientService = require('../../../services/client-service');
 
 describe(`(async) Database integration tests`, () => {
   let orderId;
-  test('register method should return new order Id', done => {
+  it('register method should return new order Id', done => {
     const orderService = new OrderService(getDbSettings(dbModes.TEST));
     orderService
       .registerOrder({
@@ -204,7 +204,7 @@ describe('User System features test', () => {
     const password = 'zaq12wsx';
     let hashed;
 
-    test('returns anything', done => {
+    it('returns anything', done => {
       authService.usersSystemApi.hashPassword(password).then(result => {
         hashed = result;
         expect(hashed).toBeTruthy();
@@ -212,7 +212,7 @@ describe('User System features test', () => {
       });
     });
 
-    test('returns string that is likely valid hash (has considerable length)', done => {
+    it('returns string that is likely valid hash (has considerable length)', done => {
       authService.usersSystemApi.hashPassword(password).then(result => {
         hashed = result;
         expect(hashed.length).toBeGreaterThan(20);

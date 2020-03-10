@@ -5,14 +5,15 @@ const errorHandler = require('./base/error-handler');
 const OrderController = function(
   /*OrderService class*/ oService,
   /*TimeLogService class*/ tlService,
+  config = {
+    isApiController: true,
+    pluralize: true,
+  },
 ) {
   const ordersService = oService;
   const timeLogService = tlService;
 
-  Controller.call(this, {
-    isApiController: true,
-    pluralize: true,
-  });
+  Controller.call(this, config);
 
   this.getSpentTimes = new Action(
     '/spenttimes',
