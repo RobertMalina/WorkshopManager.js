@@ -26,12 +26,14 @@ const ClientService = function(
       if (!phoneNumber) {
         reject('phoneNumber parameter is obligatory!');
       }
+      console.log(`Deletion of client with phoneNumber: ${id} is proceeded.`);
       db.run(queryStore.get('deleteClient', { phoneNumber }))
         .then(response => {
-          console.log(response);
+          console.log(`Client with phoneNumber: ${id} succeeded.`, response);
           resolve(response);
         })
         .catch(error => {
+          console.log(`Client with phoneNumber: ${id} failed.`, error);
           reject(error);
         });
     });

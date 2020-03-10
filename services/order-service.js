@@ -132,12 +132,14 @@ const OrderService = function(
       if (!id) {
         reject('id parameter is obligatory!');
       }
+      console.log(`Deletion of order with id: ${id} is proceeded.`);
       db.run(queryStore.get('deleteOrder', id))
         .then(response => {
-          console.log(response);
+          console.log(`Order with id: ${id} succeeded.`, response);
           resolve(response);
         })
         .catch(error => {
+          console.log(`Order with id: ${id} failed.`, error);
           reject(error);
         });
     });
