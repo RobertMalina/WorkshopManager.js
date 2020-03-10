@@ -12,10 +12,10 @@ const QueryStore = require('../../DAL/query-store');
 const { flatten, asModel } = require('../../DAL/Models/entity');
 const RoleService = require('../auth/role-service');
 
-const AuthService = function() {
-  const db = new DbAccess(
-    require('../../server.config').getDbSettings(this.target || '-dev'),
-  );
+const AuthService = function(
+  dbConfig = require('../server.config').getDbSettings('-dev'),
+) {
+  const db = new DbAccess(dbConfig);
 
   const roleService = new RoleService({
     dbAccess: db,
@@ -83,32 +83,26 @@ const AuthService = function() {
               const user = asModel({ dbRead: read, modelType: AppUser });
 
               if (withRoles) {
-                roleService
-                  .getRolesOf(user.get('Id'))
-                  .then(roles => {
-                    if (roles) {
-                      user.set(
-                        'Roles',
-                        roles.map(r => r.roleName),
-                      );
-                      resolve(user);
-                    } else {
-                      reject(
-                        `can not fetch roles o user with id:${user.get('Id')}`,
-                      );
-                    }
-                  })
-                  .catch(err => {
-                    reject(err);
-                  });
+                roleService.getRolesOf(user.get('Id')).then(roles => {
+                  if (roles) {
+                    user.set(
+                      'Roles',
+                      roles.map(r => r.roleName),
+                    );
+                    resolve(user);
+                  } else {
+                    reject(
+                      `can not fetch roles o user with id:${user.get('Id')}`,
+                    );
+                  }
+                });
               } else {
                 resolve(user);
               }
             } else {
-              console.error(
+              reject(
                 `user with username: ${identifier}, could not be found...`,
               );
-              resolve(null);
             }
           })
           .catch(err => {
@@ -125,13 +119,25 @@ const AuthService = function() {
         if (!user.canAccept(userData)) {
           reject('passed data body does not conform to AppUser model...');
         }
-
-        BCrypt.genSalt(this.saltingRounds)
-          .then(salt => BCrypt.hash(userData.password, salt))
-          .then(hashedPswd => {
-            userData.passwordHash = hashedPswd;
+        this.hashPassword(userData.password)
+          .then(hashedPsswd => {
+            userData.passwordHash = hashedPsswd;
             user.mapProperties(userData);
             resolve(user);
+          })
+          .catch(err => reject(err));
+      });
+    },
+
+    hashPassword: function(rawPassword) {
+      return new Promise((resolve, reject) => {
+        if (!rawPassword) {
+          reject('Raw password is required...');
+        }
+        BCrypt.genSalt(this.saltingRounds)
+          .then(salt => BCrypt.hash(rawPassword, salt))
+          .then(hashedPswd => {
+            resolve(hashedPswd);
           })
           .catch(err => reject(err));
       });
