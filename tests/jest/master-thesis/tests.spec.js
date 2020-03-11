@@ -76,10 +76,7 @@ describe(`Controller Action object tests`, () => {
       controller = new OrderController(
         {},
         {},
-        {
-          isApiController: false,
-          pluralize: true,
-        },
+        { isApiController: false, pluralize: true },
       );
       action.setAsRouteOf(controller);
       expect(action.route).toEqual('/orders/count');
@@ -89,10 +86,7 @@ describe(`Controller Action object tests`, () => {
       controller = new OrderController(
         {},
         {},
-        {
-          isApiController: true,
-          pluralize: false,
-        },
+        { isApiController: true, pluralize: false },
       );
       action.setAsRouteOf(controller);
       expect(action.route).toEqual('/api/order/count');
@@ -198,7 +192,7 @@ describe(`(async) Database integration tests`, () => {
 const AuthService = require('../../../services/auth/auth-service');
 
 describe('User System features test', () => {
-  let authService = new AuthService(getDbSettings(dbModes.TEST));
+  const authService = new AuthService(getDbSettings(dbModes.TEST));
 
   describe('(async) hashPassword method', () => {
     const password = 'zaq12wsx';

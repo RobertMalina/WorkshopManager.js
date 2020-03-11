@@ -4,6 +4,12 @@ const {
   memoryDiagnostics,
 } = require('../../../shared/memory-diagnostics');
 
+// TODO: reporter - nie wiem jeszcze jak tego używać
+const Reporter = require('jasmine-terminal-reporter');
+const reporter = new Reporter({
+  isVerbose: true,
+});
+
 const session = memoryDiagnostics.session();
 
 beforeEach(() => {
@@ -119,7 +125,7 @@ describe(`QueryStore (sql queries parser) tests`, () => {
       expect(() => {
         queryStore.get('registerOrder');
       }).toThrowError(
-        "Cannot destructure property `firstName` of 'undefined' or 'null'",
+        "Cannot destructure property `firstName` of 'undefined' or 'null'.",
       );
     });
 
@@ -160,7 +166,6 @@ describe(`QueryStore (sql queries parser) tests`, () => {
 const DbAccess = require('../../../DAL/db-access');
 const { getDbSettings, dbModes } = require('../../../server.config');
 const OrderService = require('../../../services/order-service');
-const ClientService = require('../../../services/client-service');
 
 describe(`(async) Database integration tests`, () => {
   let orderId;

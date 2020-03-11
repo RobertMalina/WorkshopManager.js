@@ -89,6 +89,8 @@ const generateLog = function({ rss, heapTotal, heapUsed }) {
 
 const memoryDiagnostics = {
   session: function() {
+    this.timeStart = new Date();
+    this.durationInMs = 0;
     this.reads = {
       rss: [],
       heapTotal: [],
@@ -118,7 +120,20 @@ const memoryDiagnostics = {
         this.reads.heapUsed.reduce((acc, r) => (acc += r)) /
         this.reads.heapUsed.length;
     };
+    this.duration = function(unit = 'ms') {
+      const end = new Date();
+      const d = end - this.timeStart;
+      switch (unit) {
+        case 'ms':
+          return d + unit;
+        case 's':
+          return d / 1000 + unit;
+        default:
+          break;
+      }
+    };
     this.printAvgs = function(precision = defPrecision) {
+      console.log(`\nTest suite execution time: ${this.duration('ms')}`);
       console.log(
         `Average memory usage (reads count = ${
           this.logsCount

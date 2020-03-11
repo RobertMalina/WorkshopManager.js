@@ -15,7 +15,7 @@ beforeEach('Memory usage logging', () => {
   session.log(process.memoryUsage()).in(units.MB, 2);
 });
 
-after('Memory usage summarize.', () => {
+after('Memory usage summarize', () => {
   session.summarize();
 });
 
@@ -119,7 +119,7 @@ const phoneNumber = '443892502';
 const vehicleDescription = 'Alfa Giulietta 2011 1.6Mpi 120KM';
 
 describe(`QueryStore (sql queries parser) tests`, () => {
-  let queryStore = new QueryStore();
+  const queryStore = new QueryStore();
 
   describe('Order register-query parser', () => {
     it('should throw error when no args are provided', () => {
@@ -166,14 +166,11 @@ describe(`QueryStore (sql queries parser) tests`, () => {
 const DbAccess = require('../../../DAL/db-access');
 const { getDbSettings, dbModes } = require('../../../server.config');
 const OrderService = require('../../../services/order-service');
-const ClientService = require('../../../services/client-service');
 
 chai.use(chaiAsPromised).should();
 
 describe(`(async) Database integration tests`, () => {
   let orderId;
-
-  //loginController.isAuthorizedPromise('abc123').should.eventually.be.true;
 
   it('register method should return new order Id', () => {
     const orderService = new OrderService(getDbSettings(dbModes.TEST));
@@ -187,17 +184,15 @@ describe(`(async) Database integration tests`, () => {
   });
 
   after('test database changes rollback', () => {
-    if (orderId) {
-      const db = new DbAccess(getDbSettings(dbModes.TEST));
-      const cleanUpQuery = `
+    const db = new DbAccess(getDbSettings(dbModes.TEST));
+    const cleanUpQuery = `
       DECLARE @PhoneNumber CHAR(10) = '${phoneNumber}';
       DECLARE @OrderId BIGINT;
       SET @OrderId = (SELECT MAX([Id]) FROM [dbo].[Order]);
       DELETE FROM [dbo].[Order]  WHERE Id = @OrderId;
       DELETE FROM [dbo].[Client] WHERE [PhoneNumber] = @PhoneNumber;
       `;
-      db.run(cleanUpQuery);
-    }
+    db.run(cleanUpQuery);
   });
 });
 
