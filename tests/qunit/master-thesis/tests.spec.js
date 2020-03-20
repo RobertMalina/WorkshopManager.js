@@ -10,6 +10,7 @@ QUnit.module('Master Thesis test code suite', hooks => {
   hooks.beforeEach(() => {
     session.log(process.memoryUsage()).in(units.MB, 2);
   });
+
   hooks.after(() => {
     session.summarize();
   });
@@ -74,6 +75,7 @@ QUnit.module('Master Thesis test code suite', hooks => {
           assert.equal(action.route, '/api/orders/count');
         },
       );
+
       QUnit.test('returns non-api path', assert => {
         controller = new OrderController(
           {},
@@ -220,5 +222,74 @@ QUnit.module('Master Thesis test code suite', hooks => {
         },
       );
     });
+  });
+});
+
+const { getDbSettings, dbModes } = require('../../../server.config');
+const OrderService = require('../../../services/order-service');
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+const { document, Element } = new JSDOM(`<!DOCTYPE html>`).window;
+
+global.document = document;
+global.Element = Element;
+
+const {
+  OrdersList,
+} = require('../../../master-thesis-common/orders-list.component');
+
+QUnit.module.only(`DOM related tests`, hooks => {
+  let listObj,
+    placeholder,
+    placeholderId = 'orders-list-placeholder',
+    ordersService,
+    countSetter,
+    reloadBtn;
+
+  const listId = 'orders-list';
+
+  hooks.before(() => {
+    ordersService = new OrderService(getDbSettings(dbModes.DEVELOPMENT));
+    document.body.innerHTML = `
+      <input id="count-setter" type="number" value="5"/>>
+      <button id="reload-btn"></button>
+      <div id="${placeholderId}"></div>`;
+    placeholder = document.getElementById(placeholderId);
+    listObj = new OrdersList({
+      ordersService,
+      placeholder,
+      id: listId,
+    });
+    countSetter = document.getElementById('count-setter');
+    reloadBtn = document.getElementById('reload-btn');
+  });
+
+  QUnit.test(
+    'OrdersList should have 5 items and then 2 items',
+    async assert => {
+      assert.expect(2);
+      const done = assert.async();
+
+      const listElement = await listObj.render(0, 5);
+      assert.equal(listElement.querySelectorAll('.order.list-item').length, 5);
+
+      countSetter.value = 2;
+      reloadBtn.addEventListener('click', () => {
+        listObj.render(0, countSetter.value).then(element => {
+          assert.equal(element.querySelectorAll('.order.list-item').length, 2);
+          done();
+        });
+      });
+      reloadBtn.click();
+    },
+  );
+
+  QUnit.test('OrdersList first item has valid phone number', async assert => {
+    assert.expect(1);
+    const listElement = await listObj.render(0, 5);
+    const firstItem = listElement.querySelector('.order.list-item');
+    const phoneNumber = firstItem.querySelector('.client-phone').innerHTML;
+    const isNan = isNaN(parseInt(phoneNumber, 10));
+    assert.notOk(isNan);
   });
 });

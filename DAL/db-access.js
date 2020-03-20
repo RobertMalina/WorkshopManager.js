@@ -145,6 +145,23 @@ request.bulk(table, (err, result) => {
     });
   };
 
+  /*
+  function (req, res) {
+    new sql.Connection(dbConfig).then(function (conn) {
+        new sql.Request(conn).query("...").then(function (recordset) {
+            conn.close();
+            return res.status(200).send(recordset);
+        }).catch(function (err) {
+            console.log(err);
+        });
+    });
+  };
+  */
+
+  // this.run = async (sqlStatement, columnDatas) => {
+
+  // };
+
   this.run = function(sqlStatement, columnDatas) {
     return new Promise(function(resolve, reject) {
       sql.connect(connectionSettings, function(err) {
@@ -167,11 +184,11 @@ request.bulk(table, (err, result) => {
 
         request.query(sqlStatement, function(err, recordset) {
           if (err) {
-            console.log(err);
+            console.error('Error log (own):', err);
             reject(err);
-            sql.close();
+            //sql.close();
           }
-          sql.close();
+          //sql.close();
           resolve(recordset);
         });
       });

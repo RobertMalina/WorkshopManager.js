@@ -32,17 +32,11 @@ const OrderService = function(
     });
   };
 
-  const getPagedOrders = ({
-    page,
-    itemsOnPage,
-    archivedToo,
-    statusFilters,
-  }) => {
+  const getPagedOrders = ({ page, itemsOnPage, statusFilters }) => {
     return new Promise((resolve, reject) => {
       let query = queryStore.get('selectOrdersForPagedList', {
         page,
         itemsOnPage,
-        archivedToo,
         statusFilters,
       });
       db.run(query)

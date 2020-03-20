@@ -5,4 +5,5 @@ module.exports = {
 
   // tylko testy związane z pracą mgr
   testMatch: ['**/tests/jest/master-thesis/**/*.[jt]s?(x)'],
+  // testMatch: ['**/tests/jest/master-thesis/tests.spec.js'], // pojedyńczy
 };

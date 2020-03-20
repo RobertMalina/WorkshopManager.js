@@ -22,7 +22,7 @@ const server = new AppServer({
   authProviderKey: 'JWT',
   port: '4210',
   dataFormat: 'JSON',
-  CORS: true,
+  CORS: false,
   endpoints: [
     authController,
     new OrderController(new OrderService(), new TimeLogService()),

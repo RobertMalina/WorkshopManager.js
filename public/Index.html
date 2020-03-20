@@ -4,16 +4,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <link rel="stylesheet" href="/css/base.css" type="text/css" />
-  <title>WorkshopManager SPA (VanillaJs)</title>
+  <title>WorkshopManager</title>
 </head>
 <html>
   <body>
-    <div class="main">
-      Hello world!
-    </div>
+    <div id="orders-list-placeholder"></div>
   </body>
-  <script src="scripts/axios/dist/axios.min.js"></script>
-  <script src="scripts/handlebars/dist/handlebars.min.js"></script>
-  <script src="scripts/vanilla-router/dist/vanilla-router.min.js"></script>
   <script src="js/app.js"></script>
 </html>
+
+<div id="orders-list-placeholder">
+  <div>
+    <div orderid="2" class="order list-item">
+      <h2 class="title">
+        Układ wspomagania - weryfikacja, pompa wspomagania wymiana
+      </h2>
+      <p class="vehicle-descriptions">Alfa Romeo 159 SW</p>
+      <div class="client-data">
+        <p class="client-name">Adam Bóbr</p>
+        <p class="client-phone">591131222</p>
+      </div>
+    </div>
+
+    <div orderid="3" class="order list-item">
+      <h2 class="title">
+        Turbosprężarka - weryfikacja, ew wymiana/regeneracja
+      </h2>
+      <p class="vehicle-descriptions">Opel Insignia 2010 CDTI (fl)</p>
+      <div class="client-data">
+        <p class="client-name">Jan Wiślański</p>
+        <p class="client-phone">982001722</p>
+      </div>
+    </div>
+
+    <div orderid="13" class="order list-item">
+      <h2 class="title">Serwis filtrów &amp; serwis olejowy</h2>
+      <p class="vehicle-descriptions">VW Passat CC 1.789 (2009)</p>
+      <div class="client-data">
+        <p class="client-name">Jarosław Malinowski</p>
+        <p class="client-phone">422901222</p>
+      </div>
+    </div>
+
+    <div orderid="16" class="order list-item">
+      <h2 class="title">Serwis klimatyzacji</h2>
+      <p class="vehicle-descriptions">Opel Astra 1.6 turbo (180KM) 2009</p>
+      <div class="client-data">
+        <p class="client-name">Anna Tatrzańska</p>
+        <p class="client-phone">881131222</p>
+      </div>
+    </div>
+
+    <div orderid="19" class="order list-item">
+      <h2 class="title">Koło dwumasowe, weryfikacja</h2>
+      <p class="vehicle-descriptions">Renault Talisman 1.5 Energy dCi Life</p>
+      <div class="client-data">
+        <p class="client-name">Elżbieta Fourier</p>
+        <p class="client-phone">712131722</p>
+      </div>
+    </div>
+  </div>
+</div>

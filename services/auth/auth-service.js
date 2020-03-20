@@ -13,7 +13,7 @@ const { flatten, asModel } = require('../../DAL/Models/entity');
 const RoleService = require('../auth/role-service');
 
 const AuthService = function(
-  dbConfig = require('../server.config').getDbSettings('-dev'),
+  dbConfig = require('../../server.config').getDbSettings('-dev'),
 ) {
   const db = new DbAccess(dbConfig);
 

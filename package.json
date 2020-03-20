@@ -9,7 +9,7 @@
     "test-mocha": "mocha --watch tests/mocha/**/*.js",
     "test-jasmine": "jasmine --config=jasmine.json",
     "test-ava": "ava",
-    "test-qunit": "qunit tests/qunit/master-thesis/tests.spec.js",
+    "test-qunit": "qunit tests/qunit/master-thesis/",
     "qunit-test.browser": "qunit"
   },
   "author": "",
@@ -21,6 +21,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-handlebars": "^3.1.0",
+    "jsdom": "^16.2.1",
     "jsonwebtoken": "^8.5.1",
     "mssql": "^6.0.1",
     "nodemon": "^2.0.1",
@@ -35,6 +36,7 @@
     "@babel/preset-env": "^7.7.7",
     "ava": "^2.4.0",
     "babelify": "^10.0.0",
+    "browser-env": "^3.3.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-match": "^1.1.1",
@@ -42,6 +44,7 @@
     "jasmine-terminal-reporter": "^1.0.3",
     "jest": "^24.9.0",
     "mocha": "^7.1.0",
+    "mocha-jsdom": "^2.0.0",
     "node-qunit": "^1.0.0",
     "qunit": "^2.9.3",
     "qunit-cli": "^0.2.0"

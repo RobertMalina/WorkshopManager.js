@@ -218,3 +218,59 @@ describe('User System features test', () => {
     });
   });
 });
+
+const {
+  OrdersList,
+} = require('../../../master-thesis-common/orders-list.component');
+
+const jsdom = require('mocha-jsdom');
+
+jsdom({
+  html: `<!DOCTYPE html>`,
+  globalize: true,
+});
+
+describe.only(`DOM related tests`, () => {
+  let listObj,
+    placeholder,
+    placeholderId = 'orders-list-placeholder',
+    ordersService,
+    countSetter,
+    reloadBtn;
+  const listId = 'orders-list';
+
+  before(() => {
+    ordersService = new OrderService(getDbSettings(dbModes.DEVELOPMENT));
+    document.body.innerHTML = `
+      <input id="count-setter" type="number" value="5"/>>
+      <button id="reload-btn"></button>
+      <div id="${placeholderId}"></div>`;
+    placeholder = document.getElementById(placeholderId);
+    listObj = new OrdersList({
+      ordersService,
+      placeholder,
+      id: listId,
+    });
+    countSetter = document.getElementById('count-setter');
+    reloadBtn = document.getElementById('reload-btn');
+  });
+
+  it('OrdersList should have 5 items and then 2 items', async () => {
+    const listElement = await listObj.render(0, 5);
+    expect(listElement.querySelectorAll('.order.list-item').length).to.be(5);
+    countSetter.value = 2;
+    reloadBtn.addEventListener('click', () => {
+      listObj.render(0, countSetter.value).then(element => {
+        expect(element.querySelectorAll('.order.list-item').length).to.be(2);
+      });
+    });
+    reloadBtn.click();
+  });
+
+  it('OrdersList first item has valid phone number', async () => {
+    const listElement = await listObj.render(0, 5);
+    const firstItem = listElement.querySelector('.order.list-item');
+    const phoneNumber = firstItem.querySelector('.client-phone').innerHTML;
+    expect(parseInt(phoneNumber, 10)).not.to.be(NaN);
+  });
+});
