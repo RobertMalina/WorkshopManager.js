@@ -1,6 +1,6 @@
 const DbAccess = require('../DAL/db-access');
 const QueryStore = require('../DAL/query-store');
-const { flatten } = require('../DAL/Models/entity');
+const { digest } = require('../DAL/Models/entity');
 
 const WorkersService = function() {
   const db = new DbAccess(require('../server.config').getDbSettings('-dev'));
@@ -20,7 +20,7 @@ const WorkersService = function() {
       ])
         .then(response => {
           resolve({
-            mechanicians: flatten(response, {
+            mechanicians: digest(response, {
               modelsName: 'mechanicians',
             }),
           });
@@ -49,7 +49,7 @@ const WorkersService = function() {
               if (response.recordset) {
                 resolve({
                   orderId: ordersIds[i],
-                  mechanicians: flatten(response),
+                  mechanicians: digest(response),
                 });
               }
             })

@@ -1,6 +1,6 @@
 const QueryStore = require('../DAL/query-store');
 const DbAccess = require('../DAL/db-access');
-const { flatten } = require('../DAL/Models/entity');
+const { digest } = require('../DAL/Models/entity');
 
 const TimeLogService = function() {
   const queryStore = new QueryStore();
@@ -14,7 +14,7 @@ const TimeLogService = function() {
 
       db.run(query)
         .then(response => {
-          response = flatten(response, { modelsName: 'spentTimes' });
+          response = digest(response, { modelsName: 'spentTimes' });
           console.log('time-logs', response);
           resolve(response);
         })

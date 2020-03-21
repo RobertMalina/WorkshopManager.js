@@ -1,5 +1,8 @@
 module.exports = {
   verbose: true,
+  transform: {
+    '^.+\\.js$': 'babel-jest',
+  },
   // normalna konfiguracja
   // testMatch: ['**/tests/jest/**/*.[jt]s?(x)'],
 

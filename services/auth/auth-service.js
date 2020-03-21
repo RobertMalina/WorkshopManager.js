@@ -9,7 +9,7 @@ const { isString } = require('../../shared/tools');
 const AppUser = require('../../DAL/AuthModels/AppUser');
 const AppServer = require('../../server');
 const QueryStore = require('../../DAL/query-store');
-const { flatten, asModel } = require('../../DAL/Models/entity');
+const { digest, asModel } = require('../../DAL/Models/entity');
 const RoleService = require('../auth/role-service');
 
 const AuthService = function(

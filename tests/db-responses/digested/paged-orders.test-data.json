@@ -1,0 +1,120 @@
+{
+  "orders": [
+    {
+      "id": "5",
+      "supervisorId": "1",
+      "title": "Zawieszenie przednia oś, weryfikacja",
+      "vehicleDescription": "Fiat Bravo (przed lift)",
+      "dateRegister": "2020-01-14T09:30:00.000Z",
+      "dateStart": "2020-01-28T08:15:00.000Z",
+      "dateEnd": "2020-01-31T16:15:00.000Z",
+      "cost": 0,
+      "estimatedTimeInHours": 24,
+      "status": "Finished",
+      "client": {
+        "id": "1",
+        "firstName": "Jan",
+        "lastName": "Wiślański",
+        "phoneNumber": "982001722 "
+      },
+      "supervisor": {
+        "firstName": "Jan",
+        "lastName": "Przekladniowski",
+        "phoneNumber": "311999111 "
+      }
+    },
+    {
+      "id": "6",
+      "supervisorId": "1",
+      "title": "Nieprawidłowa temperatura cieczy chłodzącej (niska)",
+      "vehicleDescription": "Mazda 6 II (2008)",
+      "dateRegister": "2020-01-28T15:15:00.000Z",
+      "dateStart": "2020-02-08T15:15:00.000Z",
+      "dateEnd": "2020-02-08T08:15:00.000Z",
+      "cost": 0,
+      "estimatedTimeInHours": 6,
+      "status": "Finished",
+      "client": {
+        "id": "9",
+        "firstName": "Jan",
+        "lastName": "Całka",
+        "phoneNumber": "902131722 "
+      },
+      "supervisor": {
+        "firstName": "Jan",
+        "lastName": "Przekladniowski",
+        "phoneNumber": "311999111 "
+      }
+    },
+    {
+      "id": "7",
+      "supervisorId": "2",
+      "title": "Nadmierne zużycie paliwa, brak mocy na niskich obrotach.",
+      "vehicleDescription": "Opel Astra 1.6 turbo (180KM) 2009",
+      "dateRegister": "2020-01-17T09:45:00.000Z",
+      "dateStart": "2020-02-01T08:00:00.000Z",
+      "dateEnd": "2020-02-09T15:45:00.000Z",
+      "cost": 0,
+      "estimatedTimeInHours": 36,
+      "status": "Finished",
+      "client": {
+        "id": "12",
+        "firstName": "Jarosław",
+        "lastName": "Hałda",
+        "phoneNumber": "112131722 "
+      },
+      "supervisor": {
+        "firstName": "Adam",
+        "lastName": "Polosiowski",
+        "phoneNumber": "211999111 "
+      }
+    },
+    {
+      "id": "8",
+      "supervisorId": "5",
+      "title": "Zawieszenie przód & przewody hamulcowe, weryfikacja",
+      "vehicleDescription": "Ford Mondeo Mk4 (2010)",
+      "dateRegister": "2020-02-08T08:15:00.000Z",
+      "dateStart": "2020-02-25T14:45:00.000Z",
+      "dateEnd": "2020-02-29T11:30:00.000Z",
+      "cost": 0,
+      "estimatedTimeInHours": 15,
+      "status": "Finished",
+      "client": {
+        "id": "10",
+        "firstName": "Elżbieta",
+        "lastName": "Fourier",
+        "phoneNumber": "712131722 "
+      },
+      "supervisor": {
+        "firstName": "Mariusz",
+        "lastName": "Skrzyniowski",
+        "phoneNumber": "815999111 "
+      }
+    },
+    {
+      "id": "10",
+      "supervisorId": "4",
+      "title": "Koło pasowe, weryfikacja przyczyn hałasu.",
+      "vehicleDescription": "Alfa 159 Sedan 150KM (TDi) (2011)",
+      "dateRegister": "2020-02-04T13:15:00.000Z",
+      "dateStart": "2020-02-16T14:15:00.000Z",
+      "dateEnd": "2020-02-17T16:15:00.000Z",
+      "cost": 0,
+      "estimatedTimeInHours": 14,
+      "status": "Finished",
+      "client": {
+        "id": "12",
+        "firstName": "Jarosław",
+        "lastName": "Hałda",
+        "phoneNumber": "112131722 "
+      },
+      "supervisor": {
+        "firstName": "Janusz",
+        "lastName": "Silnikowski",
+        "phoneNumber": "515999111 "
+      }
+    }
+  ],
+  "count": 24
+}
