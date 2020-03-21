@@ -1,48 +1,28 @@
 const DbAccess = require('../DAL/db-access');
 const QueryStore = require('../DAL/query-store');
 
-const { flatten } = require('../DAL/Models/entity');
+const { digest } = require('../DAL/Models/entity');
+const queryStore = new QueryStore();
 
-const OrderService = function(
-  dbConfig = require('../server.config').getDbSettings('-dev'),
-) {
-  const db = new DbAccess(dbConfig);
-  const queryStore = new QueryStore();
+class OrderService {
+  constructor(
+    dbContext = new DbAccess(require('../server.config').getDbSettings('-dev')),
+  ) {
+    this.dbCtx = dbContext;
+  }
 
-  this.fetchActiveOrders = function() {
-    return new Promise((resolve, reject) => {
-      db.run(queryStore.get('selectOrdersNonArchivized'))
-        .then(response => {
-          if (!response.recordset) {
-            resolve(null);
-          } else if (response.recordset.length > 0) {
-            resolve(
-              flatten(response, {
-                excludedColumns: ['description'],
-                modelsName: 'orders',
-              }),
-            );
-          } else {
-            resolve(null);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
-  };
-
-  const getPagedOrders = ({ page, itemsOnPage, statusFilters }) => {
+  getPagedOrders({ page, itemsOnPage, statusFilters }) {
     return new Promise((resolve, reject) => {
       let query = queryStore.get('selectOrdersForPagedList', {
         page,
         itemsOnPage,
         statusFilters,
       });
-      db.run(query)
+      this.dbCtx
+        .run(query)
         .then(response => {
           resolve(
-            flatten(response, {
+            digest(response, {
               excludedColumns: ['description'],
               modelsName: 'orders',
             }),
@@ -52,9 +32,9 @@ const OrderService = function(
           reject(err);
         });
     });
-  };
+  }
 
-  this.fetchAsPageContent = ({ page, itemsOnPage, statusFilters }) => {
+  fetchAsPageContent({ page, itemsOnPage, statusFilters }) {
     return new Promise((resolve, reject) => {
       let ordersPortion;
 
@@ -70,12 +50,12 @@ const OrderService = function(
         );
       }
 
-      getPagedOrders({ page, itemsOnPage, statusFilters })
+      this.getPagedOrders({ page, itemsOnPage, statusFilters })
         .then(data => {
-          if (!data.orders) {
+          if (!data) {
             reject('Orders fetch error occured...');
           }
-          ordersPortion = data.orders;
+          ordersPortion = data.orders || [];
           return this.getOrdersCount({ statusFilters });
         })
         .then(ordersCount =>
@@ -86,48 +66,51 @@ const OrderService = function(
         )
         .catch(err => reject(err));
     });
-  };
+  }
 
-  this.getOrdersCount = ({ statusFilters }) => {
+  getOrdersCount({ statusFilters }) {
     return new Promise((resolve, reject) => {
       const query = queryStore.get('selectOrdersCount', { statusFilters });
 
-      db.run(query)
+      this.dbCtx
+        .run(query)
         .then(response => {
-          response = flatten(response, { asSingleResult: true });
+          response = digest(response, { asSingleResult: true });
           resolve(response.ordersCount);
         })
         .catch(err => reject(err));
     });
-  };
+  }
 
-  this.fetchOrder = function(id) {
+  fetchOrder(id) {
     return new Promise((resolve, reject) => {
       if (!id) {
         reject('id parameter is obligatory!');
       }
 
-      db.run(queryStore.get('selectOrderWithId', { id: id }))
+      this.dbCtx
+        .run(queryStore.get('selectOrderWithId', { id: id }))
         .then(response => {
           if (!response.recordset) {
             resolve(`Can't fetch order with id: ${id}...`);
           }
-          response = flatten(response, { asSingleResult: true });
+          response = digest(response, { asSingleResult: true });
           resolve(response);
         })
         .catch(error => {
           reject(error);
         });
     });
-  };
+  }
 
-  this.deleteOrder = id => {
+  deleteOrder(id) {
     return new Promise((resolve, reject) => {
       if (!id) {
         reject('id parameter is obligatory!');
       }
       console.log(`Deletion of order with id: ${id} is proceeded.`);
-      db.run(queryStore.get('deleteOrder', id))
+      this.dbCtx
+        .run(queryStore.get('deleteOrder', id))
         .then(response => {
           console.log(`Order with id: ${id} succeeded.`, response);
           resolve(response);
@@ -137,16 +120,17 @@ const OrderService = function(
           reject(error);
         });
     });
-  };
+  }
 
-  this.registerOrder = orderData => {
+  registerOrder(orderData) {
     return new Promise((resolve, reject) => {
       if (!orderData) {
         reject('orderData parameter is obligatory!');
       }
-      db.run(queryStore.get('registerOrder', orderData))
+      this.dbCtx
+        .run(queryStore.get('registerOrder', orderData))
         .then(response => {
-          response = flatten(response, { asSingleResult: true });
+          response = digest(response, { asSingleResult: true });
           let { result } = response;
           if (isNaN(parseInt(result, 10))) {
             reject(result);
@@ -158,7 +142,7 @@ const OrderService = function(
           reject(error);
         });
     });
-  };
-};
+  }
+}
 
 module.exports = OrderService;

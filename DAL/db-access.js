@@ -1,56 +1,20 @@
 const QueryString = require('./db-query-string');
 const { isModel } = require('../DAL/DAL.index');
-
-const DbAccess = function(connectionSettings) {
-  const sql = require('mssql');
-
-  //-dev (for development database) || -test (for test database)
-  this.target = '-dev';
-
-  sql.on('error', err => {
-    console.warn(err);
-  });
-
-  const isEntityModelValid = function(entityModel) {
-    if (!entityModel.hasOwnProperty('properties')) {
-      console.error(
-        'Passed object does not implement required features of entityModel ...',
-      );
-      return false;
-    }
-    return true;
-  };
-
-  /*
 const sql = require('mssql');
-properties = {
-  'IntPropName': {
-    type: require('mssql').Int,
-    value: 0,
-    nullable: false,
-    skipInsert: false,
-    primary: false
+
+class DbAccess {
+  constructor(connectionSettings) {
+    this.settings = connectionSettings;
+    this.target = '-dev'; //-dev (for development database) || -test (for test database)
+    sql.on('error', err => {
+      console.warn(err);
+    });
   }
-}
-*/
 
-  /*
-const table = new sql.Table('table_name') // or temporary table, e.g. #temptable
-table.create = true
-table.columns.add('a', sql.Int, {nullable: true, primary: true})
-table.columns.add('b', sql.VarChar(50), {nullable: false})
-table.rows.add(777, 'test')
- 
-const request = new sql.Request()
-request.bulk(table, (err, result) => {
-    // ... error checks
-})
-*/
-
-  this.insertMany = ({
+  insertMany({
     tableName /*string*/,
     models /*Model[] (Model function inheritants) */,
-  }) => {
+  }) {
     const bulkInsert = () => {
       return new Promise((resolve, reject) => {
         if (models.length === 0) {
@@ -91,9 +55,9 @@ request.bulk(table, (err, result) => {
       });
     };
     return this.connectAndRun({ asyncAction: bulkInsert });
-  };
+  }
 
-  this.insert = function(model) {
+  insert(model) {
     return new Promise((resolve, reject) => {
       if (!isModel(model)) {
         reject('inserted object must inherits from Model function...');
@@ -129,11 +93,11 @@ request.bulk(table, (err, result) => {
           reject(err);
         });
     });
-  };
+  }
 
-  this.connectAndRun = ({ asyncAction }) => {
+  connectAndRun({ asyncAction }) {
     return new Promise((resolve, reject) => {
-      sql.connect(connectionSettings, err => {
+      sql.connect(this.settings, err => {
         if (err) {
           console.error('db-connection error', err);
           reject(err);
@@ -143,28 +107,11 @@ request.bulk(table, (err, result) => {
           .catch(err => reject(err));
       });
     });
-  };
+  }
 
-  /*
-  function (req, res) {
-    new sql.Connection(dbConfig).then(function (conn) {
-        new sql.Request(conn).query("...").then(function (recordset) {
-            conn.close();
-            return res.status(200).send(recordset);
-        }).catch(function (err) {
-            console.log(err);
-        });
-    });
-  };
-  */
-
-  // this.run = async (sqlStatement, columnDatas) => {
-
-  // };
-
-  this.run = function(sqlStatement, columnDatas) {
-    return new Promise(function(resolve, reject) {
-      sql.connect(connectionSettings, function(err) {
+  run(sqlStatement, columnDatas) {
+    return new Promise((resolve, reject) => {
+      sql.connect(this.settings, function(err) {
         if (err) {
           console.log(err);
           return;
@@ -193,7 +140,7 @@ request.bulk(table, (err, result) => {
         });
       });
     });
-  };
-};
+  }
+}
 
 module.exports = DbAccess;
