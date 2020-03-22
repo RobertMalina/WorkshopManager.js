@@ -44,10 +44,12 @@
     "jasmine": "^3.5.0",
     "jasmine-terminal-reporter": "^1.0.3",
     "jest": "^24.9.0",
-    "mocha": "^7.1.0",
+    "mocha": "^7.1.1",
     "mocha-jsdom": "^2.0.0",
     "node-qunit": "^1.0.0",
     "qunit": "^2.9.3",
-    "qunit-cli": "^0.2.0"
+    "qunit-cli": "^0.2.0",
+    "sinon": "^9.0.1",
+    "sinon-test": "^3.0.0"
   }
 }

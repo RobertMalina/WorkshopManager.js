@@ -1,5 +1,5 @@
 const regeneratorRuntime = require('regenerator-runtime'); // -> instrukcja usuwa błąd który występuje przy funkcjach typu async ("regeneratorRuntime is not defined")
-import { getTestData as testData } from '../../helpers/test-data-reader';
+import { getTestData as testData } from '../../helpers/test-data-reader.es6';
 import { asString } from '../../helpers/utils';
 import { digest } from '../../../DAL/Models/entity';
 const dbConfig = require('../../../server.config').getDbSettings('-dev');
@@ -56,7 +56,7 @@ describe('mocks related tests', () => {
       orderService = new OrderService(dbCtx);
     });
 
-    test('getOrdersCount should return 5', async () => {
+    test('getOrdersCount should return 24', async () => {
       runMock.mockReturnValueOnce(
         new Promise(resolve => resolve(orderCountRes)),
       );

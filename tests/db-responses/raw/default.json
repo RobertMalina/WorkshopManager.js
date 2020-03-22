@@ -1,0 +1,9 @@
+{
+  "rowsAffected": 1,
+  "recordset": [
+    {
+      "DbColumnA": 100,
+      "DbColumnB": "TextValue"
+    }
+  ]
+}
