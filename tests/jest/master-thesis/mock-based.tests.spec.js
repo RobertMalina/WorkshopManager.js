@@ -43,16 +43,10 @@ describe('mocks related tests', () => {
 
     beforeAll(() => {
       runMock.mockClear();
+      dbCtx = new DbAccess(dbConfig);
     });
 
     beforeEach(() => {
-      runMock.mockReturnValueOnce(
-        new Promise(resolve => resolve(orderCountRes)),
-      );
-      runMock.mockReturnValueOnce(
-        new Promise(resolve => resolve(pagedOrdersRes)),
-      );
-      dbCtx = new DbAccess(dbConfig);
       orderService = new OrderService(dbCtx);
     });
 
@@ -66,18 +60,25 @@ describe('mocks related tests', () => {
     });
 
     test('should return fixed test data', async () => {
+      runMock.mockReturnValueOnce(
+        new Promise(resolve => resolve(pagedOrdersRes)),
+      );
+      runMock.mockReturnValueOnce(
+        new Promise(resolve => resolve(orderCountRes)),
+      );
       expect.assertions(1);
       const result = await orderService.fetchAsPageContent(queryData);
       expect(asString(result)).toEqual(asString(pagedOrders));
     });
 
-    test('spies info summary', () => {
+    test('run method spy-data summary', () => {
       const QueryStore = require('../../../DAL/query-store');
       const qs = new QueryStore();
       const ordersCountQuery = qs.get('selectOrdersCount', {
         statusFilters: queryData.statusFilters,
       });
       expect(runMock).toHaveBeenCalledTimes(3);
+      expect(runMock).toHaveBeenCalledWith(ordersCountQuery);
       expect(runMock.mock.calls[0][0]).toEqual(ordersCountQuery);
     });
   });

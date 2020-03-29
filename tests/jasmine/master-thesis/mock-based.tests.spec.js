@@ -7,7 +7,7 @@ const OrderService = require('../../../services/order-service');
 
 describe(`mocks related tests`, () => {
   let dbCtx;
-  it('returns object without function-members', async () => {
+  it(`DbAccess module is mocked (db won't be queried)`, async () => {
     dbCtx = require('../mocks/db-accces.mock').create();
     const result = await dbCtx.run('no query is needed...');
     expect(dbCtx.run).toHaveBeenCalledTimes(1);
@@ -66,7 +66,6 @@ describe(`mocks related tests`, () => {
       orderService = new OrderService(dbCtx);
       const result = await orderService.fetchAsPageContent(queryData);
       expect(dbCtx.run).toHaveBeenCalledTimes(2);
-
       expect(asString(result)).toEqual(asString(pagedOrders));
     });
   });
