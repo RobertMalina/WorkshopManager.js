@@ -12,7 +12,7 @@ const createMock = () => {
     }),
   );
 
-  dbAccess.dispose = () => {
+  dbAccess.clearMock = () => {
     runStub.resetHistory();
   };
   return dbAccess;

@@ -3,9 +3,11 @@ const getTestData = require('../../helpers/test-data-reader');
 const dbConfig = require('../../../server.config').getDbSettings('-dev');
 const defResponse = require('../../db-responses/raw/default.json');
 const expect = require('chai').expect;
+
 const sinon = require('sinon');
 const sinonTest = require('sinon-test');
 const sinTest = sinonTest(sinon);
+
 const asString = obj => {
   return JSON.stringify(obj).replace(/\s+/g, '');
 };
@@ -44,15 +46,17 @@ describe('mocks related tests (stub approach)', () => {
   let dbCtx = require('../../mocks/db-access.mock').createMock();
 
   afterEach(() => {
-    dbCtx.dispose();
+    //dbCtx.clearMock();
   });
   it(
     `DbAccess module is mocked (db won't be queried)`,
     sinTest(async function() {
+      let dbCtx = require('../../mocks/db-access.mock').createMock();
       const result = await dbCtx.run('no query is needed...');
       sinon.assert.calledOnce(dbCtx.run);
       sinon.assert.calledWith(dbCtx.run, 'no query is needed...');
       expect(result).to.eql(defResponse);
+      dbCtx.clearMock();
     }),
   );
 });
@@ -87,7 +91,7 @@ describe('OrderService.fetchAsPageContent', () => {
   });
 
   after(() => {
-    dbCtx.dispose();
+    dbCtx.clearMock();
   });
 
   it(
